@@ -13,6 +13,6 @@ public class InputComponentAuthoring : MonoBehaviour {
     }
 }
 
-public struct InputComponent : IComponentData {
+public struct InputComponent : IComponentData, IEnableableComponent {
     public float2 MoveInput;
 }
