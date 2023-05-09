@@ -1,12 +1,10 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Unity.Mathematics;
 using UnityEngine;
 
 public class PlayerInputBuffer : MonoBehaviour {
     private static PlayerInputBuffer _instance;
     private float2 currentMoveInput;
+    private CustomInputActions _customInputActions;
 
     public static PlayerInputBuffer Instance {
         get {
@@ -25,23 +23,13 @@ public class PlayerInputBuffer : MonoBehaviour {
         else {
             _instance = this;
         }
+
+        _customInputActions = new CustomInputActions();
+        _customInputActions.Player.Enable();
     }
 
     private void Update() {
-        float2 inputVector = new float2();
-        if (Input.GetKey(KeyCode.W)) {
-            inputVector.y = 1;
-        }
-        if (Input.GetKey(KeyCode.S)) {
-            inputVector.y = -1;
-        }
-        if (Input.GetKey(KeyCode.A)) {
-            inputVector.x = -1;
-        }
-        if (Input.GetKey(KeyCode.D)) {
-            inputVector.x = 1;
-        }
-
+        float2 inputVector = _customInputActions.Player.Move.ReadValue<Vector2>();
         currentMoveInput = math.normalizesafe(inputVector);
     }
 
