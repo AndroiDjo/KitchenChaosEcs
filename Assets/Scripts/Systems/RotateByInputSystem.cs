@@ -7,6 +7,9 @@ partial class RotateByInputSystem : SystemBase {
         var dt = SystemAPI.Time.DeltaTime;
         
         Entities.ForEach((ref LocalTransform transform, in InputComponent input, in RotateSpeedComponent rotateSpeed) => {
+            if (input.MoveInput.Equals(float2.zero))
+                return;
+            
             var targetRotation = quaternion.RotateY(math.atan2(input.MoveInput.x, input.MoveInput.y));
             transform.Rotation = math.slerp(transform.Rotation, targetRotation, rotateSpeed.Value * dt);
         }).Schedule();

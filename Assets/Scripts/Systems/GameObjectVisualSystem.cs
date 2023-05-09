@@ -18,6 +18,10 @@ partial struct GameObjectVisualSystem : ISystem {
         foreach (var (visual, entity) in SystemAPI.Query<GameObjectVisualComponent>().WithEntityAccess()) {
                 var go = GameObject.Instantiate(visual.Prefab);
                 ecb.AddComponent(entity, new GameObjectTransformComponent{Transform = go.transform});
+                Animator animator = go.GetComponent<Animator>();
+                if (animator != null) {
+                    ecb.AddComponent(entity, new GameObjectAnimatorComponent{ Animator = animator });
+                }
                 ecb.RemoveComponent<GameObjectVisualComponent>(entity);
             }
     }

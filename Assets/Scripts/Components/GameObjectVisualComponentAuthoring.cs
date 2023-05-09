@@ -21,3 +21,7 @@ public class GameObjectVisualComponent : IComponentData {
 public class GameObjectTransformComponent : IComponentData {
     public Transform Transform;
 }
+
+public class GameObjectAnimatorComponent : IComponentData {
+    public Animator Animator;
+}
