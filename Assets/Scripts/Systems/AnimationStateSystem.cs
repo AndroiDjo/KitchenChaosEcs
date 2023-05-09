@@ -8,8 +8,8 @@ partial class AnimationStateSystem : SystemBase {
 
         Entities
             .WithAll<CanHaveWalkingAnimationComponent, PlayerAnimationIsWalkingComponent>()
-            .ForEach((Entity entity, in InputComponent input) => {
-                if (input.MoveInput.Equals(float2.zero)) {
+            .ForEach((Entity entity, in InputMoveComponent input) => {
+                if (input.Value.Equals(float2.zero)) {
                     ecb.SetComponentEnabled<PlayerAnimationIsWalkingComponent>(entity, false);
                 }
             }).Schedule();
@@ -17,8 +17,8 @@ partial class AnimationStateSystem : SystemBase {
         Entities
             .WithAll<CanHaveWalkingAnimationComponent>()
             .WithNone<PlayerAnimationIsWalkingComponent>()
-            .ForEach((Entity entity, in InputComponent input) => {
-                if (!input.MoveInput.Equals(float2.zero)) {
+            .ForEach((Entity entity, in InputMoveComponent input) => {
+                if (!input.Value.Equals(float2.zero)) {
                     ecb.SetComponentEnabled<PlayerAnimationIsWalkingComponent>(entity, true);
                 }
             }).Schedule();

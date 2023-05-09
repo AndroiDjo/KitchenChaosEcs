@@ -6,8 +6,8 @@ namespace Helpers {
             return new float3(inputVector.x, 0f, inputVector.y);
         }
         
-        public static bool HasMovement(in InputComponent input) {
-            return !input.MoveInput.Equals(float2.zero);
+        public static bool HasMovement(in InputMoveComponent inputMove) {
+            return !inputMove.Value.Equals(float2.zero);
         }
     }
 }

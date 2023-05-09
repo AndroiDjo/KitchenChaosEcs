@@ -13,28 +13,28 @@ partial class PlayerMoveSystem : SystemBase {
         Entities
             .WithAll<PlayerTagComponent>()
             .ForEach((ref LocalTransform transform, ref LastInputDirectionComponent lastInputDirection, 
-                in InputComponent input, in MoveSpeedComponent moveSpeed, in PhysicsCollider collider) => {
+                in InputMoveComponent input, in MoveSpeedComponent moveSpeed, in PhysicsCollider collider) => {
             if (!InputHelper.HasMovement(input))
                 return;
             
-            lastInputDirection.Value = input.MoveInput;
+            lastInputDirection.Value = input.Value;
             
-            float3 moveDirection = InputHelper.GetMoveDirection(input.MoveInput);
+            float3 moveDirection = InputHelper.GetMoveDirection(input.Value);
             if (!CheckForCollisionAndMove(ref transform, physicsWorld, dt, moveDirection, moveSpeed, collider)) {
                 return;
             }
 
-            if (input.MoveInput.x.Equals(0f) || input.MoveInput.y.Equals(0f)) {
+            if (input.Value.x.Equals(0f) || input.Value.y.Equals(0f)) {
                 return;
             }
             
             // If we are moving diagonally, lets try to move in one direction.
-            moveDirection = new float3(input.MoveInput.x, 0f, 0f);
+            moveDirection = new float3(input.Value.x, 0f, 0f);
             if (!CheckForCollisionAndMove(ref transform, physicsWorld, dt, moveDirection, moveSpeed, collider)) {
                 return;
             }
             
-            moveDirection = new float3(0f, 0f, input.MoveInput.y);
+            moveDirection = new float3(0f, 0f, input.Value.y);
             if (!CheckForCollisionAndMove(ref transform, physicsWorld, dt, moveDirection, moveSpeed, collider)) {
                 return;
             }
