@@ -9,10 +9,15 @@ public class InputComponentAuthoring : MonoBehaviour {
             AddComponent(entity, new InputComponent {
                 MoveInput = float2.zero
             });
+            AddComponent<LastInputDirectionComponent>(entity);
         }
     }
 }
 
 public struct InputComponent : IComponentData, IEnableableComponent {
     public float2 MoveInput;
+}
+
+public struct LastInputDirectionComponent : IComponentData {
+    public float2 Value;
 }

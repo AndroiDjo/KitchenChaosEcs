@@ -2,6 +2,7 @@ using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
 using Unity.Physics;
+using Helpers;
 
 partial class PlayerMoveSystem : SystemBase {
     private const float COLLISION_TOLERANCE = 3f;
@@ -11,11 +12,14 @@ partial class PlayerMoveSystem : SystemBase {
 
         Entities
             .WithAll<PlayerTagComponent>()
-            .ForEach((ref LocalTransform transform, in InputComponent input, in MoveSpeedComponent moveSpeed, in PhysicsCollider collider) => {
-            if (input.MoveInput.Equals(float2.zero))
+            .ForEach((ref LocalTransform transform, ref LastInputDirectionComponent lastInputDirection, 
+                in InputComponent input, in MoveSpeedComponent moveSpeed, in PhysicsCollider collider) => {
+            if (!InputHelper.HasMovement(input))
                 return;
             
-            float3 moveDirection = new float3(input.MoveInput.x, 0f, input.MoveInput.y);
+            lastInputDirection.Value = input.MoveInput;
+            
+            float3 moveDirection = InputHelper.GetMoveDirection(input.MoveInput);
             if (!CheckForCollisionAndMove(ref transform, physicsWorld, dt, moveDirection, moveSpeed, collider)) {
                 return;
             }

@@ -1,3 +1,4 @@
+using Helpers;
 using Unity.Entities;
 using Unity.Transforms;
 using Unity.Mathematics;
@@ -7,7 +8,7 @@ partial class RotateByInputSystem : SystemBase {
         var dt = SystemAPI.Time.DeltaTime;
         
         Entities.ForEach((ref LocalTransform transform, in InputComponent input, in RotateSpeedComponent rotateSpeed) => {
-            if (input.MoveInput.Equals(float2.zero))
+            if (!InputHelper.HasMovement(input))
                 return;
             
             var targetRotation = quaternion.RotateY(math.atan2(input.MoveInput.x, input.MoveInput.y));
