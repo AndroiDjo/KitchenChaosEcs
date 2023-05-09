@@ -34,11 +34,6 @@ public class PlayerInputBuffer : MonoBehaviour {
         _customInputActions.Player.Interact.performed += InteractOnperformed;
     }
 
-    private void OnDestroy() {
-        _customInputActions.Player.Interact.performed -= InteractOnperformed;
-        _customInputActions.Player.Disable();
-    }
-
     private void InteractOnperformed(InputAction.CallbackContext obj) {
         OnInteractAction?.Invoke(this, EventArgs.Empty);
     }

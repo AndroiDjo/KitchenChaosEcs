@@ -21,8 +21,4 @@ partial class CustomInputSystem : SystemBase {
                 input.Value = currentInput;
             }).Schedule();
     }
-    
-    protected override void OnDestroy() {
-        PlayerInputBuffer.Instance.OnInteractAction -= InstanceOnOnInteractAction;
-    }
 }

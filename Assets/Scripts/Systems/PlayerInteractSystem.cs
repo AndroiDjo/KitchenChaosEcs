@@ -3,6 +3,7 @@ using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
 using Unity.Transforms;
+using Unity.VisualScripting.FullSerializer;
 
 partial class PlayerInteractSystem : SystemBase {
     private const float INTERACT_DISTANCE = 1f;
@@ -13,11 +14,9 @@ partial class PlayerInteractSystem : SystemBase {
         var ecb = ecbSystem.CreateCommandBuffer();
 
         Entities
-            .WithAll<PlayerTagComponent, InputInteractComponent>()
-            .ForEach((Entity entity, in LocalTransform transform, in LastInputDirectionComponent lastDirection,
-                in PhysicsCollider collider) => {
-                ecb.SetComponentEnabled<InputInteractComponent>(entity, false);
-
+            .WithAll<PlayerTagComponent>()
+            .ForEach((Entity entity, ref PlayerInteractTargetComponent interactTarget, in LocalTransform transform,
+                in LastInputDirectionComponent lastDirection, in PhysicsCollider collider) => {
                 if (lastDirection.Value.Equals(float2.zero))
                     return;
 
@@ -31,9 +30,14 @@ partial class PlayerInteractSystem : SystemBase {
                     Filter = playerCollisionFilter
                 };
                 if (physicsWorld.CastRay(raycastInput, out RaycastHit raycastHit)) {
+                    interactTarget.TargetEntity = raycastHit.Entity;
+                }
+                else {
+                    interactTarget.TargetEntity = Entity.Null;
                 }
 
-            }).Schedule();
+            })
+            .Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
     }
