@@ -2,7 +2,6 @@ using Helpers;
 using Unity.Entities;
 using Unity.Mathematics;
 using Unity.Physics;
-using Unity.Physics.Authoring;
 using Unity.Transforms;
 
 partial class PlayerInteractSystem : SystemBase {
@@ -10,11 +9,15 @@ partial class PlayerInteractSystem : SystemBase {
     
     protected override void OnUpdate() {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
+        var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
+        var ecb = ecbSystem.CreateCommandBuffer();
 
         Entities
-            .WithAll<PlayerTagComponent>()
-            .ForEach((in LocalTransform transform, in LastInputDirectionComponent lastDirection,
+            .WithAll<PlayerTagComponent, InputInteractComponent>()
+            .ForEach((Entity entity, in LocalTransform transform, in LastInputDirectionComponent lastDirection,
                 in PhysicsCollider collider) => {
+                ecb.SetComponentEnabled<InputInteractComponent>(entity, false);
+
                 if (lastDirection.Value.Equals(float2.zero))
                     return;
 
@@ -27,11 +30,11 @@ partial class PlayerInteractSystem : SystemBase {
                     End = lookPoint,
                     Filter = playerCollisionFilter
                 };
-                PhysicsDebugDisplaySystem.Line(raycastInput.Start, raycastInput.End, Unity.DebugDisplay.ColorIndex.Red);
                 if (physicsWorld.CastRay(raycastInput, out RaycastHit raycastHit)) {
-                    //Debug.Log(raycastHit.Position);
                 }
 
             }).Schedule();
+        
+        ecbSystem.AddJobHandleForProducer(this.Dependency);
     }
 }
