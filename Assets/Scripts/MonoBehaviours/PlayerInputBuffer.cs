@@ -29,8 +29,7 @@ public class PlayerInputBuffer : MonoBehaviour {
     }
 
     private void Update() {
-        float2 inputVector = _customInputActions.Player.Move.ReadValue<Vector2>();
-        currentMoveInput = math.normalizesafe(inputVector);
+        currentMoveInput = _customInputActions.Player.Move.ReadValue<Vector2>();
     }
 
     public float2 GetMoveInput() {
