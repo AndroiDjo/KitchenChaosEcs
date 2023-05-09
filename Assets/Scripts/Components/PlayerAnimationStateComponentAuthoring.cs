@@ -6,8 +6,11 @@ public class PlayerAnimationStateComponentAuthoring : MonoBehaviour {
         public override void Bake(PlayerAnimationStateComponentAuthoring authoring) {
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent<PlayerAnimationIsWalkingComponent>(entity);
+            AddComponent<CanHaveWalkingAnimationComponent>(entity);
         }
     }
 }
 
 public struct PlayerAnimationIsWalkingComponent : IComponentData, IEnableableComponent {}
+
+public struct CanHaveWalkingAnimationComponent : IComponentData {}
