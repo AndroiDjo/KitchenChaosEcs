@@ -6,8 +6,6 @@ using Unity.Transforms;
 using Unity.VisualScripting.FullSerializer;
 
 partial class PlayerInteractSystem : SystemBase {
-    private const float INTERACT_DISTANCE = 1f;
-    
     protected override void OnUpdate() {
         var physicsWorld = SystemAPI.GetSingleton<PhysicsWorldSingleton>();
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
@@ -16,13 +14,13 @@ partial class PlayerInteractSystem : SystemBase {
         Entities
             .WithAll<PlayerTagComponent>()
             .ForEach((Entity entity, ref PlayerInteractTargetComponent interactTarget, in LocalTransform transform,
-                in LastInputDirectionComponent lastDirection, in PhysicsCollider collider) => {
+                in LastInputDirectionComponent lastDirection, in PhysicsCollider collider, in InteractDistanceComponent interactDistance) => {
                 if (lastDirection.Value.Equals(float2.zero))
                     return;
 
                 float3 startPoint = transform.Position;
                 float3 lookPoint = transform.Position +
-                                   InputHelper.GetMoveDirection(lastDirection.Value) * INTERACT_DISTANCE;
+                                   InputHelper.GetMoveDirection(lastDirection.Value) * interactDistance.Value;
                 CollisionFilter playerCollisionFilter = collider.Value.Value.GetCollisionFilter();
                 RaycastInput raycastInput = new RaycastInput {
                     Start = startPoint,
