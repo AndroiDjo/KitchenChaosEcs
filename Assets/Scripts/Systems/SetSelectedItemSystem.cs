@@ -4,55 +4,43 @@ using Unity.Entities;
 partial class SetSelectedItemSystem : SystemBase {
     protected override void OnUpdate() {
         NativeArray<Entity> selectedItemNative = new NativeArray<Entity>(1, Allocator.TempJob);
+        NativeArray<ItemPlaceholderComponent> itemPlaceholderNative =
+            new NativeArray<ItemPlaceholderComponent>(1, Allocator.TempJob);
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
-        BufferLookup<LinkedEntityGroup> linkedGroupLookup = GetBufferLookup<LinkedEntityGroup>(true);
 
         Entities
             .WithAll<PlayerTagComponent>()
-            .ForEach((in PlayerInteractTargetComponent interactTarget) => {
+            .ForEach((in PlayerInteractTargetComponent interactTarget, in ItemPlaceholderComponent itemPlaceholder) => {
                 selectedItemNative[0] = interactTarget.TargetEntity;
+                itemPlaceholderNative[0] = itemPlaceholder;
             })
             .Schedule();
 
         Entities
-            .WithReadOnly(linkedGroupLookup)
             .WithAll<CanBeSelectedComponent, IsSelectedItemComponent>()
             .ForEach((Entity entity, in SelectedItemVisualComponent selectedVisual) => {
                 if (!entity.Equals(selectedItemNative[0])) {
                     ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, false);
-                    SetSelectedVisual(false, ecb, selectedVisual, linkedGroupLookup);
+                    ecb.SetEnabled(selectedVisual.Entity, false);
                 }
             })
             .Schedule();
         
         Entities
-            .WithReadOnly(linkedGroupLookup)
             .WithAll<CanBeSelectedComponent>()
             .WithNone<IsSelectedItemComponent>()
             .WithDisposeOnCompletion(selectedItemNative)
-            .ForEach((Entity entity, in SelectedItemVisualComponent selectedVisual) => {
+            .WithDisposeOnCompletion(itemPlaceholderNative)
+            .ForEach((Entity entity, ref InteractedPlayerItemPlaceholderComponent playerItemPlaceholder, in SelectedItemVisualComponent selectedVisual) => {
                 if (entity.Equals(selectedItemNative[0])) {
+                    playerItemPlaceholder.Placeholder = itemPlaceholderNative[0];
                     ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, true);
-                    SetSelectedVisual(true, ecb, selectedVisual, linkedGroupLookup);
+                    ecb.SetEnabled(selectedVisual.Entity, true);
                 }
             })
             .Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
-    }
-
-    private static void SetSelectedVisual(bool enable, EntityCommandBuffer ecb, in SelectedItemVisualComponent selectedItemVisual, 
-        BufferLookup<LinkedEntityGroup> linkedGroupLookup) {
-        if (linkedGroupLookup.TryGetBuffer(selectedItemVisual.Entity, out DynamicBuffer<LinkedEntityGroup> linkedEntities)) {
-            foreach (var linkedEntity in linkedEntities) {
-                if (enable) {
-                    ecb.RemoveComponent<Disabled>(linkedEntity.Value);
-                }
-                else {
-                    ecb.AddComponent<Disabled>(linkedEntity.Value);
-                }
-            }
-        }
     }
 }
