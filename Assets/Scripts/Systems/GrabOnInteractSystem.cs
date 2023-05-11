@@ -10,6 +10,7 @@ partial class GrabOnInteractSystem : SystemBase {
     private void InstanceOnOnInteractAction(object sender, EventArgs e) {
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
+        
         Entities
             .WithAll<IsSelectedItemComponent>()
             .ForEach((Entity entity, ref IngredientEntityComponent ingredientEntity, in SpawnPrefabComponent ingredientPrefab, 
@@ -22,6 +23,13 @@ partial class GrabOnInteractSystem : SystemBase {
                 });
             })
             .Schedule();
+        
+        Entities
+            .WithAll<IsSelectedItemComponent, CanHaveIsOpenAnimationComponent>()
+            .WithNone<IsOpenAnimationComponent>()
+            .ForEach((Entity entity) => {
+                ecb.SetComponentEnabled<IsOpenAnimationComponent>(entity, true);
+            }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
     }

@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Mathematics;
 
-partial class AnimationStateSystem : SystemBase {
+partial class WalkingAnimationSystem : SystemBase {
     protected override void OnUpdate() {
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         var ecb = ecbSystem.CreateCommandBuffer();

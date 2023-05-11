@@ -23,6 +23,6 @@ partial struct GameObjectVisualSystem : ISystem {
                     ecb.AddComponent(entity, new GameObjectAnimatorComponent{ Animator = animator });
                 }
                 ecb.RemoveComponent<GameObjectVisualComponent>(entity);
-            }
+        }
     }
 }
