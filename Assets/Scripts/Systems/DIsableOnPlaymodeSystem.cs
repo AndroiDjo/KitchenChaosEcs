@@ -9,5 +9,7 @@ partial class DisableOnPlaymode : SystemBase {
             .ForEach((Entity entity, int entityInQueryIndex) => {
                 ecb.SetEnabled(entityInQueryIndex, entity, false);
             }).ScheduleParallel();
+        
+        ecbSystem.AddJobHandleForProducer(this.Dependency);
     }
 }

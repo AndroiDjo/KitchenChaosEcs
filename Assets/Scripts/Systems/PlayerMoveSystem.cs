@@ -23,7 +23,7 @@ partial class PlayerMoveSystem : SystemBase {
                 return;
             }
 
-            if (input.Value.x.Equals(0f) || input.Value.y.Equals(0f)) {
+            if (input.Value.x == 0f || input.Value.y == 0f) {
                 return;
             }
             

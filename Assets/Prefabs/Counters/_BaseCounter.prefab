@@ -45,7 +45,6 @@ GameObject:
   - component: {fileID: 8206590731576489133}
   - component: {fileID: 257482916230193747}
   - component: {fileID: 4738786367371969325}
-  - component: {fileID: 2731882669634316763}
   m_Layer: 0
   m_Name: _BaseCounter
   m_TagString: Untagged
@@ -252,6 +251,17 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   placeholder: {fileID: 1298369569696251166}
+  localPosition:
+    x: 0
+    y: 0
+    z: 0
+  localRotation:
+    value:
+      x: 0
+      y: 0
+      z: 0
+      w: 1
+  localScale: 1
 --- !u!114 &4738786367371969325
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -262,18 +272,6 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 27df298de4fa4296948146a47e16e91e, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
---- !u!114 &2731882669634316763
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2278149621523778782}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 6dfd65400bf740b0ad64103ed5cdc5e0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &2361281584347065274
