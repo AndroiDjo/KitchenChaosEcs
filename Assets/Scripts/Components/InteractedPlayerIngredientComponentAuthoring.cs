@@ -13,5 +13,4 @@ public class InteractedPlayerIngredientComponentAuthoring : MonoBehaviour {
 
 public struct InteractedPlayerIngredientComponent : IComponentData {
     public IngredientEntityComponent Ingredient;
-    public LocalTransform Transform;
 }
