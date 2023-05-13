@@ -35,25 +35,40 @@ partial class SelectedItemInteractSystem : SystemBase {
                 ecb.SetComponentEnabled<IsOpenAnimationComponent>(entity, true);
             }).Schedule();
         
-        // Initialize put/get ingredient process.
+        // Initialize put on regular counter.
         Entities
             .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()
-            .ForEach((Entity entity,  
-                ref LastInteractedEntityComponent lastInteracted,
-                in IngredientEntityComponent ingredient) => {
-                
+            .WithNone<CanCutIngredientComponent>()
+            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
                 // If player holds something - put it on counter.
                 if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null) {
                     ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
                     ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
-                    
-                    // If player holds nothing and there is something on the counter - take it.
-                } else if (lastInteracted.Ingredient.Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                } 
+            }).Schedule();
+        
+        // Initialize put on cutting counter.
+        Entities
+            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent, CanCutIngredientComponent>()
+            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
+                // If player holds something and it suitable for cutting counter - put it on counter.
+                if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null &&
+                    SystemAPI.HasComponent<CutCounterComponent>(lastInteracted.Ingredient.Entity)) {
+                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
+                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
+                } 
+            }).Schedule();
+        
+        // Initialize grab from any counter.
+        Entities
+            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()
+            .ForEach((in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
+                // If player holds nothing and there is something on the counter - take it.
+                if (lastInteracted.Ingredient.Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(ingredient.Entity, true);
                     ecb.SetComponentEnabled<MustGrabIngredientComponent>(lastInteracted.Entity, true);
-                }
-            })
-            .Schedule();
+                } 
+            }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
     }
