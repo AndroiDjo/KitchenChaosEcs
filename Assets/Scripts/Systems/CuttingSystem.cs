@@ -9,11 +9,12 @@ partial class CuttingSystem : SystemBase {
         
         Entities
             .WithAll<TryToCutIngredientComponent>()
-            .ForEach((Entity entity, ref CutCounterComponent cutCounter, in SlicedEntityPrefabComponent slicedPrefab, 
-                in LastInteractedEntityComponent lastInteracted) => {
+            .ForEach((Entity entity, ref CutCounterComponent cutCounter, ref ProgressBarValueComponent progressBar,
+                in SlicedEntityPrefabComponent slicedPrefab, in LastInteractedEntityComponent lastInteracted) => {
                 
                 ecb.SetComponentEnabled<TryToCutIngredientComponent>(entity, false);
                 cutCounter.Counter++;
+                progressBar.Value = (float)cutCounter.Counter / cutCounter.Goal;
                 if (cutCounter.Counter >= cutCounter.Goal) {
                     Entity slicedEntity = ecb.Instantiate(slicedPrefab.Prefab);
                     ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(slicedEntity, true);

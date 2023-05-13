@@ -1,5 +1,6 @@
 using UnityEngine;
 using Unity.Entities;
+using UnityEngine.UI;
 
 public class GameObjectVisualComponentAuthoring : MonoBehaviour {
     [SerializeField] private GameObject VisualPrefab;
@@ -24,4 +25,9 @@ public class GameObjectTransformComponent : IComponentData {
 
 public class GameObjectAnimatorComponent : IComponentData {
     public Animator Animator;
+}
+
+public class GameObjectProgressBarComponent : IComponentData {
+    public GameObject ProgressBarGO;
+    public Image Image;
 }

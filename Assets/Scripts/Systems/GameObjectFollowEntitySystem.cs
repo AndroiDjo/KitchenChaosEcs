@@ -6,11 +6,10 @@ using Unity.Transforms;
 [BurstCompile]
 partial struct GameObjectFollowEntitySystem : ISystem {
     public void OnUpdate(ref SystemState state) {
-        foreach (var (goTransform, entityTransform) in SystemAPI.Query<GameObjectTransformComponent, LocalTransform>()) {
+        foreach (var (goTransform, entityTransform, localTransform) in SystemAPI.Query<GameObjectTransformComponent, LocalToWorld, LocalTransform>()) {
             goTransform.Transform.position = entityTransform.Position;
             goTransform.Transform.rotation = entityTransform.Rotation;
-            goTransform.Transform.localScale =
-                new Vector3(entityTransform.Scale, entityTransform.Scale, entityTransform.Scale);
+            goTransform.Transform.localScale = new Vector3(localTransform.Scale, localTransform.Scale, localTransform.Scale);
         }
     }
 }

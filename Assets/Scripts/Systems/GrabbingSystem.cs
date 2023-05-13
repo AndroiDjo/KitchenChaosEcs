@@ -30,7 +30,7 @@ partial class GrabbingSystem : SystemBase {
                 
                 // Destroy old entity if it still exists.
                 if (ingredientEntity.Entity != Entity.Null) {
-                    ecb.DestroyEntity(ingredientEntity.Entity);
+                    ecb.AddComponent<MustBeDestroyedComponent>(ingredientEntity.Entity);
                 }
 
                 // Old entity, that used to hold ingredient, must forgot about it.
