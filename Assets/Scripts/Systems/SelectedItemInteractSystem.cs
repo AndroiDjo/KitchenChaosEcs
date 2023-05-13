@@ -51,7 +51,7 @@ partial class SelectedItemInteractSystem : SystemBase {
         // Initialize put on regular counter.
         Entities
             .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()
-            .WithNone<CanCutIngredientComponent>()
+            .WithNone<CanCutIngredientComponent, CanFryIngredientComponent>()
             .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
                 // If player holds something - put it on counter.
                 if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null) {
@@ -67,6 +67,18 @@ partial class SelectedItemInteractSystem : SystemBase {
                 // If player holds something and it suitable for cutting counter - put it on counter.
                 if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null &&
                     SystemAPI.HasComponent<CutCounterComponent>(lastInteracted.Ingredient.Entity)) {
+                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
+                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
+                } 
+            }).Schedule();
+        
+        // Initialize put on frying counter.
+        Entities
+            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent, CanFryIngredientComponent>()
+            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
+                // If player holds something and it suitable for frying counter - put it on counter.
+                if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null &&
+                    SystemAPI.HasComponent<FryCounterComponent>(lastInteracted.Ingredient.Entity)) {
                     ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
                     ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
                 } 
