@@ -35,6 +35,19 @@ partial class SelectedItemInteractSystem : SystemBase {
                 ecb.SetComponentEnabled<IsOpenAnimationComponent>(entity, true);
             }).Schedule();
         
+        // Proceed trash counter.
+        Entities
+            .WithAll<IsSelectedItemComponent, CanDestroyIngredientComponent>()
+            .ForEach((in LastInteractedEntityComponent lastInteracted) => {
+                if (lastInteracted.Ingredient.Entity == Entity.Null) {
+                    return;
+                } 
+                ecb.AddComponent<MustBeDestroyedComponent>(lastInteracted.Ingredient.Entity);
+                if (lastInteracted.Entity != Entity.Null) {
+                    ecb.SetComponent(lastInteracted.Entity, new IngredientEntityComponent());
+                }
+            }).Schedule();
+        
         // Initialize put on regular counter.
         Entities
             .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()

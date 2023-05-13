@@ -4,7 +4,6 @@ using UnityEngine;
 partial struct DestroyEntitySystem : ISystem {
     public void OnUpdate(ref SystemState state) {
         var ecb = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
-
         foreach (var (transformGO, entity) in SystemAPI
                      .Query<GameObjectTransformComponent>()
                      .WithEntityAccess()
