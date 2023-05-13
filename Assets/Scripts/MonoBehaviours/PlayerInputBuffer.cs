@@ -9,6 +9,7 @@ public class PlayerInputBuffer : MonoBehaviour {
     private CustomInputActions _customInputActions;
 
     public event EventHandler OnInteractAction;
+    public event EventHandler OnInteractAlternateAction;
 
     public static PlayerInputBuffer Instance {
         get {
@@ -32,6 +33,11 @@ public class PlayerInputBuffer : MonoBehaviour {
         _customInputActions.Player.Enable();
         
         _customInputActions.Player.Interact.performed += InteractOnperformed;
+        _customInputActions.Player.InteractAlternate.performed += InteractAlternateOnperformed;
+    }
+
+    private void InteractAlternateOnperformed(InputAction.CallbackContext obj) {
+        OnInteractAlternateAction?.Invoke(this, EventArgs.Empty);
     }
 
     private void InteractOnperformed(InputAction.CallbackContext obj) {

@@ -4,23 +4,28 @@ using Unity.Entities;
 partial class SetSelectedItemSystem : SystemBase {
     protected override void OnUpdate() {
         NativeArray<Entity> selectedItemNative = new NativeArray<Entity>(1, Allocator.TempJob);
-        NativeArray<IngredientEntityComponent> ingredientEntityNative =
-            new NativeArray<IngredientEntityComponent>(1, Allocator.TempJob);
+        var lastInteractedNative = new NativeArray<LastInteractedEntityComponent>(1, Allocator.TempJob);
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
 
         Entities
             .WithAll<PlayerTagComponent>()
-            .ForEach((in PlayerInteractTargetComponent interactTarget, in IngredientEntityComponent ingredientEntity) => {
+            .ForEach((Entity entity, in PlayerInteractTargetComponent interactTarget, in IngredientEntityComponent ingredientEntity) => {
                 selectedItemNative[0] = interactTarget.TargetEntity;
-                ingredientEntityNative[0] = ingredientEntity;
+                lastInteractedNative[0] = new LastInteractedEntityComponent {
+                    Entity = entity,
+                    Ingredient = ingredientEntity
+                };
             })
             .Schedule();
 
         Entities
             .WithAll<CanBeSelectedComponent, IsSelectedItemComponent>()
-            .ForEach((Entity entity, in SelectedItemVisualComponent selectedVisual) => {
-                if (entity != selectedItemNative[0]) {
+            .ForEach((Entity entity, ref LastInteractedEntityComponent lastInteracted, in SelectedItemVisualComponent selectedVisual) => {
+                if (entity == selectedItemNative[0]) {
+                    lastInteracted = lastInteractedNative[0];
+                }
+                else {
                     ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, false);
                     ecb.SetEnabled(selectedVisual.Entity, false);
                 }
@@ -31,13 +36,14 @@ partial class SetSelectedItemSystem : SystemBase {
             .WithAll<CanBeSelectedComponent>()
             .WithNone<IsSelectedItemComponent>()
             .WithDisposeOnCompletion(selectedItemNative)
-            .WithDisposeOnCompletion(ingredientEntityNative)
-            .ForEach((Entity entity, ref InteractedPlayerIngredientComponent playerIngredient, in SelectedItemVisualComponent selectedVisual) => {
-                if (entity == selectedItemNative[0]) {
-                    playerIngredient.Ingredient = ingredientEntityNative[0];
-                    ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, true);
-                    ecb.SetEnabled(selectedVisual.Entity, true);
-                }
+            .WithDisposeOnCompletion(lastInteractedNative)
+            .ForEach((Entity entity, ref LastInteractedEntityComponent lastInteracted, in SelectedItemVisualComponent selectedVisual) => {
+                if (entity != selectedItemNative[0])
+                    return;
+
+                lastInteracted = lastInteractedNative[0];
+                ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, true);
+                ecb.SetEnabled(selectedVisual.Entity, true);
             })
             .Schedule();
         
