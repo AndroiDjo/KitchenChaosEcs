@@ -73,7 +73,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithAll<IsSelectedItemComponent, CanCutIngredientComponent>()
             .ForEach((Entity entity, in IngredientEntityComponent ingredient) => {
                 if (ingredient.Entity != Entity.Null) {
-                    ecb.SetComponentEnabled<IngredientMustBeCuttedComponent>(ingredient.Entity, true);
+                    ecb.SetComponentEnabled<TryToCutIngredientComponent>(ingredient.Entity, true);
                 }
             }).Schedule();
         

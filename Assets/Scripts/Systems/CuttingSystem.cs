@@ -8,11 +8,11 @@ partial class CuttingSystem : SystemBase {
         var ecb = ecbSystem.CreateCommandBuffer();
         
         Entities
-            .WithAll<IngredientMustBeCuttedComponent>()
+            .WithAll<TryToCutIngredientComponent>()
             .ForEach((Entity entity, ref CutCounterComponent cutCounter, in SlicedEntityPrefabComponent slicedPrefab, 
                 in LastInteractedEntityComponent lastInteracted) => {
                 
-                ecb.SetComponentEnabled<IngredientMustBeCuttedComponent>(entity, false);
+                ecb.SetComponentEnabled<TryToCutIngredientComponent>(entity, false);
                 cutCounter.Counter++;
                 if (cutCounter.Counter >= cutCounter.Goal) {
                     Entity slicedEntity = ecb.Instantiate(slicedPrefab.Prefab);
