@@ -1,26 +1,34 @@
+using Helpers;
 using Unity.Entities;
+using Unity.Transforms;
 
 partial class FryingSystem : SystemBase {
     protected override void OnUpdate() {
         float dt = SystemAPI.Time.DeltaTime;
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
-        var ecb = ecbSystem.CreateCommandBuffer().AsParallelWriter();
+        var ecb = ecbSystem.CreateCommandBuffer();
         
         Entities
-            .ForEach((int entityInQueryIndex, ref FryCounterComponent fryCounter, ref ProgressBarValueComponent progressBar, 
-                in IngredientNextStagePrefabComponent nextStagePrefab, in LastInteractedEntityComponent lastInteracted) => {
-                if (!SystemAPI.HasComponent<CanFryIngredientComponent>(lastInteracted.Entity)) {
+            .ForEach((Entity entity, ref FryCounterComponent fryCounter, ref ProgressBarValueComponent progressBar, 
+                in IngredientNextStagePrefabComponent nextStagePrefab, in HoldedByComponent holdedBy,
+                in Parent parentEntity, in LocalTransform localTransform) => {
+                
+                if (holdedBy.HolderType != HolderType.StoveCounter) {
                     return;
                 }
-
+        
                 fryCounter.Counter += fryCounter.Speed * dt;
                 progressBar.Value = fryCounter.Counter / fryCounter.Goal;
                 if (fryCounter.Counter >= fryCounter.Goal) {
-                    Entity nextStageEntity = ecb.Instantiate(entityInQueryIndex, nextStagePrefab.Prefab);
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(entityInQueryIndex, nextStageEntity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entityInQueryIndex, lastInteracted.Entity, true);
+                    ecb.AddComponent<MustBeDestroyedComponent>(entity);
+                    ecb.SetEnabled(entity, false);
+                    Entity nextStageEntity = ecb.Instantiate(nextStagePrefab.Prefab);
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
+                        Entity = parentEntity.Value,
+                        LocalPosition = localTransform
+                    }, true);
                 }
-            }).ScheduleParallel();
+            }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
     }

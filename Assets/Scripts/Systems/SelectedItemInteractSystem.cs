@@ -1,4 +1,6 @@
 using System;
+using Helpers;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -13,18 +15,73 @@ partial class SelectedItemInteractSystem : SystemBase {
     private void InstanceOnOnInteractAction(object sender, EventArgs e) {
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
-        
-        // Container counters spawn ingredient if it possible.
+        var playerIngredientNative = new NativeArray<IngredientEntityComponent>(1, Allocator.TempJob);
+        var playerItemPlaceholderNative = new NativeArray<ItemPlaceholderComponent>(1, Allocator.TempJob);
+
         Entities
+            .WithAll<PlayerTagComponent>()
+            .ForEach((Entity entity, in IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+                playerIngredientNative[0] = ingredient;
+                playerItemPlaceholderNative[0] = itemPlaceholder;
+            }).Schedule();
+        
+        // Put ingredient to regular counter.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(playerItemPlaceholderNative)
+            .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent>()
+            .WithNone<CanCutIngredientComponent, CanFryIngredientComponent>()
+            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+                if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null) {
+                    // If player holds something - put it on counter.
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                    // If player holds nothing and there is something on the counter - take it.
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                }
+            }).Schedule();
+        
+        // Put ingredient to cut counter.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(playerItemPlaceholderNative)
+            .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanCutIngredientComponent>()
+            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+                if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
+                    SystemAPI.HasComponent<CutCounterComponent>(playerIngredientNative[0].Entity)) {
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                }
+            }).Schedule();
+        
+        // Put ingredient to frying counter.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(playerItemPlaceholderNative)
+            .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanFryIngredientComponent>()
+            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+                if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
+                    SystemAPI.HasComponent<FryCounterComponent>(playerIngredientNative[0].Entity)) {
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                }
+            }).Schedule();
+        
+        // Container counter spawn ingredient.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(playerItemPlaceholderNative)
+            .WithDisposeOnCompletion(playerItemPlaceholderNative)
             .WithAll<IsSelectedItemComponent>()
-            .ForEach((Entity entity, LastInteractedEntityComponent lastInteracted, in SpawnPrefabComponent ingredientPrefab) => {
-                if (lastInteracted.Ingredient.Entity != Entity.Null || lastInteracted.Entity == Entity.Null) {
+            .ForEach((in SpawnPrefabComponent ingredientPrefab) => {
+                if (playerIngredientNative[0].Entity != Entity.Null) {
                     return;
                 }
-
+        
                 Entity spawnedEntity = ecb.Instantiate(ingredientPrefab.Prefab);
-                ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(spawnedEntity, true);
-                ecb.SetComponentEnabled<MustGrabIngredientComponent>(lastInteracted.Entity, true);
+                EntitySystemHelper.SetNewParentToIngredient(ref ecb, spawnedEntity, playerItemPlaceholderNative[0], true);
             })
             .Schedule();
         
@@ -38,62 +95,15 @@ partial class SelectedItemInteractSystem : SystemBase {
         
         // Proceed trash counter.
         Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithDisposeOnCompletion(playerIngredientNative)
             .WithAll<IsSelectedItemComponent, CanDestroyIngredientComponent>()
-            .ForEach((in LastInteractedEntityComponent lastInteracted) => {
-                if (lastInteracted.Ingredient.Entity == Entity.Null) {
+            .ForEach((Entity entity) => {
+                if (playerIngredientNative[0].Entity == Entity.Null) {
                     return;
-                } 
-                ecb.AddComponent<MustBeDestroyedComponent>(lastInteracted.Ingredient.Entity);
-                if (lastInteracted.Entity != Entity.Null) {
-                    ecb.SetComponent(lastInteracted.Entity, new IngredientEntityComponent());
                 }
-            }).Schedule();
-        
-        // Initialize put on regular counter.
-        Entities
-            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()
-            .WithNone<CanCutIngredientComponent, CanFryIngredientComponent>()
-            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
-                // If player holds something - put it on counter.
-                if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null) {
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
-                } 
-            }).Schedule();
-        
-        // Initialize put on cutting counter.
-        Entities
-            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent, CanCutIngredientComponent>()
-            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
-                // If player holds something and it suitable for cutting counter - put it on counter.
-                if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null &&
-                    SystemAPI.HasComponent<CutCounterComponent>(lastInteracted.Ingredient.Entity)) {
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
-                } 
-            }).Schedule();
-        
-        // Initialize put on frying counter.
-        Entities
-            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent, CanFryIngredientComponent>()
-            .ForEach((Entity entity, in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
-                // If player holds something and it suitable for frying counter - put it on counter.
-                if (lastInteracted.Ingredient.Entity != Entity.Null && ingredient.Entity == Entity.Null &&
-                    SystemAPI.HasComponent<FryCounterComponent>(lastInteracted.Ingredient.Entity)) {
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(lastInteracted.Ingredient.Entity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(entity, true);
-                } 
-            }).Schedule();
-        
-        // Initialize grab from any counter.
-        Entities
-            .WithAll<IsSelectedItemComponent, CanGrabIngredientComponent>()
-            .ForEach((in LastInteractedEntityComponent lastInteracted, in IngredientEntityComponent ingredient) => {
-                // If player holds nothing and there is something on the counter - take it.
-                if (lastInteracted.Ingredient.Entity == Entity.Null && ingredient.Entity != Entity.Null) {
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(ingredient.Entity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(lastInteracted.Entity, true);
-                } 
+                
+                ecb.AddComponent<MustBeDestroyedComponent>(playerIngredientNative[0].Entity);
             }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);

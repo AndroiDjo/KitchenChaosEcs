@@ -1,3 +1,4 @@
+using Helpers;
 using Unity.Entities;
 using Unity.Transforms;
 
@@ -10,15 +11,20 @@ partial class CuttingSystem : SystemBase {
         Entities
             .WithAll<TryToCutIngredientComponent>()
             .ForEach((Entity entity, ref CutCounterComponent cutCounter, ref ProgressBarValueComponent progressBar,
-                in IngredientNextStagePrefabComponent nextStagePrefab, in LastInteractedEntityComponent lastInteracted) => {
+                in IngredientNextStagePrefabComponent nextStagePrefab,
+                in Parent parentEntity, in LocalTransform localTransform) => {
                 
                 ecb.SetComponentEnabled<TryToCutIngredientComponent>(entity, false);
                 cutCounter.Counter++;
                 progressBar.Value = (float)cutCounter.Counter / cutCounter.Goal;
                 if (cutCounter.Counter >= cutCounter.Goal) {
+                    ecb.AddComponent<MustBeDestroyedComponent>(entity);
+                    ecb.SetEnabled(entity, false);
                     Entity nextStageEntity = ecb.Instantiate(nextStagePrefab.Prefab);
-                    ecb.SetComponentEnabled<IngredientMustBeGrabbedComponent>(nextStageEntity, true);
-                    ecb.SetComponentEnabled<MustGrabIngredientComponent>(lastInteracted.Entity, true);
+                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
+                        Entity = parentEntity.Value,
+                        LocalPosition = localTransform
+                    }, true);
                 }
             })
             .Schedule();
