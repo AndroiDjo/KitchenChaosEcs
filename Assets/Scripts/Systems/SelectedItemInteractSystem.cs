@@ -5,8 +5,9 @@ using Unity.Transforms;
 [UpdateAfter(typeof(SetSelectedItemSystem))]
 partial class SelectedItemInteractSystem : SystemBase {
     protected override void OnCreate() {
-        PlayerInputBuffer.Instance.OnInteractAction += InstanceOnOnInteractAction;
-        PlayerInputBuffer.Instance.OnInteractAlternateAction += InstanceOnOnInteractAlternateAction;
+        var playerInputActionsSystem = this.World.GetExistingSystemManaged<CustomInputSystem>();
+        playerInputActionsSystem.OnInteractAction += InstanceOnOnInteractAction;
+        playerInputActionsSystem.OnInteractAlternateAction += InstanceOnOnInteractAlternateAction;
     }
 
     private void InstanceOnOnInteractAction(object sender, EventArgs e) {
