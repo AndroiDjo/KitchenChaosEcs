@@ -99,11 +99,9 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithDisposeOnCompletion(playerIngredientNative)
             .WithAll<IsSelectedItemComponent, CanDestroyIngredientComponent>()
             .ForEach((Entity entity) => {
-                if (playerIngredientNative[0].Entity == Entity.Null) {
-                    return;
+                if (playerIngredientNative[0].Entity != Entity.Null) {
+                   ecb.DestroyEntity(playerIngredientNative[0].Entity);
                 }
-                
-                ecb.AddComponent<MustBeDestroyedComponent>(playerIngredientNative[0].Entity);
             }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);

@@ -19,7 +19,7 @@ public class GameObjectVisualComponent : IComponentData {
     public GameObject Prefab;
 }
 
-public class GameObjectTransformComponent : IComponentData {
+public class GameObjectTransformComponent : ICleanupComponentData {
     public Transform Transform;
 }
 

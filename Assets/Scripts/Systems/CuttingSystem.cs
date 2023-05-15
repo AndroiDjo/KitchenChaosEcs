@@ -18,8 +18,7 @@ partial class CuttingSystem : SystemBase {
                 cutCounter.Counter++;
                 progressBar.Value = (float)cutCounter.Counter / cutCounter.Goal;
                 if (cutCounter.Counter >= cutCounter.Goal) {
-                    ecb.AddComponent<MustBeDestroyedComponent>(entity);
-                    ecb.SetEnabled(entity, false);
+                    ecb.DestroyEntity(entity);
                     Entity nextStageEntity = ecb.Instantiate(nextStagePrefab.Prefab);
                     EntitySystemHelper.SetNewParentToIngredient(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
                         Entity = parentEntity.Value,

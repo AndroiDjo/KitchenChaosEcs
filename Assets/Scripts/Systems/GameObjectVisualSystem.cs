@@ -9,6 +9,7 @@ partial struct GameObjectVisualSystem : ISystem {
         var ecb = SystemAPI.GetSingleton<BeginSimulationEntityCommandBufferSystem.Singleton>().CreateCommandBuffer(state.WorldUnmanaged);
         foreach (var (visual, entity) in SystemAPI.Query<GameObjectVisualComponent>().WithEntityAccess()) {
                 var go = GameObject.Instantiate(visual.Prefab);
+                ecb.AddComponent<MustBeCleanedBeforeDestroyComponent>(entity);
                 ecb.AddComponent(entity, new GameObjectTransformComponent{Transform = go.transform});
                 if (go.TryGetComponent<Animator>(out Animator animator)) {
                     ecb.AddComponent(entity, new GameObjectAnimatorComponent{ Animator = animator });

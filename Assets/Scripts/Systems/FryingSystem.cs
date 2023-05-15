@@ -20,8 +20,7 @@ partial class FryingSystem : SystemBase {
                 fryCounter.Counter += fryCounter.Speed * dt;
                 progressBar.Value = fryCounter.Counter / fryCounter.Goal;
                 if (fryCounter.Counter >= fryCounter.Goal) {
-                    ecb.AddComponent<MustBeDestroyedComponent>(entity);
-                    ecb.SetEnabled(entity, false);
+                    ecb.DestroyEntity(entity);
                     Entity nextStageEntity = ecb.Instantiate(nextStagePrefab.Prefab);
                     EntitySystemHelper.SetNewParentToIngredient(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
                         Entity = parentEntity.Value,
