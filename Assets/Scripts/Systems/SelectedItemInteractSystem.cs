@@ -25,7 +25,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 playerItemPlaceholderNative[0] = itemPlaceholder;
             }).Schedule();
         
-        // Put ingredient to regular counter.
+        // Interact with clear counter.
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
@@ -34,14 +34,14 @@ partial class SelectedItemInteractSystem : SystemBase {
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null) {
                     // If player holds something - put it on counter.
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     // If player holds nothing and there is something on the counter - take it.
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 }
             }).Schedule();
         
-        // Put ingredient to cut counter.
+        // Interact with cut counter.
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
@@ -49,13 +49,13 @@ partial class SelectedItemInteractSystem : SystemBase {
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
                     SystemAPI.HasComponent<CutCounterComponent>(playerIngredientNative[0].Entity)) {
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 }
             }).Schedule();
         
-        // Put ingredient to frying counter.
+        // Interact with frying counter.
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
@@ -63,10 +63,26 @@ partial class SelectedItemInteractSystem : SystemBase {
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
                     SystemAPI.HasComponent<FryCounterComponent>(playerIngredientNative[0].Entity)) {
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 }
+            }).Schedule();
+        
+        // Interact with plates counter.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(playerItemPlaceholderNative)
+            .WithAll<IsSelectedItemComponent>()
+            .ForEach((ref DynamicBuffer<ItemsBufferComponent> itemsBuffer) => {
+                if (playerIngredientNative[0].Entity != Entity.Null || itemsBuffer.Length == 0) {
+                    return;
+                }
+
+                int lastIndex = itemsBuffer.Length - 1;
+                Entity topPlate = itemsBuffer[lastIndex].Item;
+                EntitySystemHelper.SetNewParentToEntity(ref ecb, topPlate, playerItemPlaceholderNative[0], false);
+                itemsBuffer.RemoveAt(lastIndex);
             }).Schedule();
         
         // Container counter spawn ingredient.
@@ -74,14 +90,14 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
             .WithDisposeOnCompletion(playerItemPlaceholderNative)
-            .WithAll<IsSelectedItemComponent>()
+            .WithAll<IsSelectedItemComponent, SpawnOnInteractComponent>()
             .ForEach((in SpawnPrefabComponent ingredientPrefab) => {
                 if (playerIngredientNative[0].Entity != Entity.Null) {
                     return;
                 }
         
                 Entity spawnedEntity = ecb.Instantiate(ingredientPrefab.Prefab);
-                EntitySystemHelper.SetNewParentToIngredient(ref ecb, spawnedEntity, playerItemPlaceholderNative[0], true);
+                EntitySystemHelper.SetNewParentToEntity(ref ecb, spawnedEntity, playerItemPlaceholderNative[0], true);
             })
             .Schedule();
         

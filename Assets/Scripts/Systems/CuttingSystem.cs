@@ -20,7 +20,7 @@ partial class CuttingSystem : SystemBase {
                 if (cutCounter.Counter >= cutCounter.Goal) {
                     ecb.DestroyEntity(entity);
                     Entity nextStageEntity = ecb.Instantiate(nextStagePrefab.Prefab);
-                    EntitySystemHelper.SetNewParentToIngredient(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
+                    EntitySystemHelper.SetNewParentToEntity(ref ecb, nextStageEntity, new ItemPlaceholderComponent {
                         Entity = parentEntity.Value,
                         LocalPosition = localTransform
                     }, true);

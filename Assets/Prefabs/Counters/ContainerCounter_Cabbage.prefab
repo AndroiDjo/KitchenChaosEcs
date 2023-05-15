@@ -16,6 +16,12 @@ PrefabInstance:
         type: 3}
     - target: {fileID: 6087926462070935144, guid: a4935501327ae49ec8509c54ea56cfae,
         type: 3}
+      propertyPath: Prefab
+      value: 
+      objectReference: {fileID: 3255421029500123720, guid: ac3e1f3449d7e4009af6816f126c76d0,
+        type: 3}
+    - target: {fileID: 6087926462070935144, guid: a4935501327ae49ec8509c54ea56cfae,
+        type: 3}
       propertyPath: prefab
       value: 
       objectReference: {fileID: 3255421029500123720, guid: ac3e1f3449d7e4009af6816f126c76d0,

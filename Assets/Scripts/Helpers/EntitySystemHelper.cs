@@ -3,7 +3,7 @@ using Unity.Transforms;
 
 namespace Helpers {
     public class EntitySystemHelper {
-        public static void SetNewParentToIngredient(ref EntityCommandBuffer ecb, in Entity entity, 
+        public static void SetNewParentToEntity(ref EntityCommandBuffer ecb, in Entity entity, 
             in ItemPlaceholderComponent itemPlaceholder, in bool newEntity) {
             Parent newParent = new Parent { Value = itemPlaceholder.Entity };
             if (newEntity) {
