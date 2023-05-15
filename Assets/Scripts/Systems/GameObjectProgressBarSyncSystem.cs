@@ -3,8 +3,8 @@ using UnityEngine;
 
 partial struct GameObjectProgressBarSyncSystem : ISystem {
     public void OnUpdate(ref SystemState state) {
-        foreach (var (goProgressBar, progressBarValue) in SystemAPI
-                     .Query<GameObjectProgressBarComponent, ProgressBarValueComponent>()) {
+        foreach (var (goProgressBar, progressBarValue, holdedBy) in SystemAPI
+                     .Query<GameObjectProgressBarComponent, ProgressBarValueComponent, HoldedByComponent>()) {
             float value = progressBarValue.Value;
             if (value < 0) {
                 value = 0f;
@@ -13,7 +13,8 @@ partial struct GameObjectProgressBarSyncSystem : ISystem {
             }
 
             goProgressBar.Image.fillAmount = value;
-            if (Mathf.Approximately(value, 0f) || Mathf.Approximately(value, 1f)) {
+            if (Mathf.Approximately(value, 0f) || Mathf.Approximately(value, 1f) ||
+                (holdedBy.HolderType != HolderType.CuttingCounter && holdedBy.HolderType != HolderType.StoveCounter)) {
                 if (goProgressBar.ProgressBarGO.activeSelf)
                     goProgressBar.ProgressBarGO.SetActive(false);
             }
