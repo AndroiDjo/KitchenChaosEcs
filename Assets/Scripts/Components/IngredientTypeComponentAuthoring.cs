@@ -26,6 +26,8 @@ public struct IngredientTypeComponent : IComponentData {
                 return true;
             case IngredientType.MeatCooked:
                 return true;
+            case IngredientType.MeatBurned:
+                return true;
             case IngredientType.Bread:
                 return true;
             default:
