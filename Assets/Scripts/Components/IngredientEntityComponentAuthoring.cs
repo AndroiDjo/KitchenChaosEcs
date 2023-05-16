@@ -11,4 +11,5 @@ public class IngredientEntityComponentAuthoring : MonoBehaviour {
 }
 public struct IngredientEntityComponent : IComponentData {
     public Entity Entity;
+    public IngredientTypeComponent IngredientType;
 }

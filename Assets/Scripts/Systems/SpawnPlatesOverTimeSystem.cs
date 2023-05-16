@@ -1,7 +1,7 @@
 using Unity.Entities;
 using Unity.Transforms;
 
-partial class SpawnItemsOverTimeSystem : SystemBase {
+partial class SpawnPlatesOverTimeSystem : SystemBase {
     protected override void OnUpdate() {
         float dt = SystemAPI.Time.DeltaTime;
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();

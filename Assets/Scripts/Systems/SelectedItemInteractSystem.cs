@@ -6,6 +6,32 @@ using Unity.Transforms;
 
 [UpdateAfter(typeof(SetSelectedItemSystem))]
 partial class SelectedItemInteractSystem : SystemBase {
+
+    private static bool TryPutOnPlate(ref EntityCommandBuffer ecb, in IngredientEntityComponent playerIngredient,
+        in IngredientEntityComponent counterIngredient) {
+        
+        if (playerIngredient.Entity == Entity.Null || counterIngredient.Entity == Entity.Null) {
+            return false;
+        }
+
+        if (playerIngredient.IngredientType.IngredientType == IngredientType.Plate &&
+            counterIngredient.IngredientType.IsBurgerIngredient()) {
+            ecb.AppendToBuffer(playerIngredient.Entity, new BurgerIngredientsBufferComponent {
+                BurgerIngredient = counterIngredient.IngredientType
+            });
+            ecb.DestroyEntity(counterIngredient.Entity);
+            return true;
+        } else if (playerIngredient.IngredientType.IsBurgerIngredient()  &&
+                   counterIngredient.IngredientType.IngredientType == IngredientType.Plate) {
+            ecb.AppendToBuffer(counterIngredient.Entity, new BurgerIngredientsBufferComponent {
+                BurgerIngredient = playerIngredient.IngredientType
+            });
+            ecb.DestroyEntity(playerIngredient.Entity);
+            return true;
+        }
+
+        return false;
+    }
     protected override void OnCreate() {
         var playerInputActionsSystem = this.World.GetExistingSystemManaged<CustomInputSystem>();
         playerInputActionsSystem.OnInteractAction += InstanceOnOnInteractAction;
@@ -38,34 +64,44 @@ partial class SelectedItemInteractSystem : SystemBase {
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     // If player holds nothing and there is something on the counter - take it.
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                } else {
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
                 }
             }).Schedule();
         
         // Interact with cut counter.
+        var cutCounterLookup = SystemAPI.GetComponentLookup<CutCounterComponent>(true);
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
+            .WithReadOnly(cutCounterLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanCutIngredientComponent>()
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
-                    SystemAPI.HasComponent<CutCounterComponent>(playerIngredientNative[0].Entity)) {
+                    cutCounterLookup.HasComponent(playerIngredientNative[0].Entity)) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                } else {
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
                 }
             }).Schedule();
         
         // Interact with frying counter.
+        var fryCounterLookup = SystemAPI.GetComponentLookup<FryCounterComponent>(true);
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
+            .WithReadOnly(fryCounterLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanFryIngredientComponent>()
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
-                    SystemAPI.HasComponent<FryCounterComponent>(playerIngredientNative[0].Entity)) {
+                    fryCounterLookup.HasComponent(playerIngredientNative[0].Entity)) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
+                } else {
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
                 }
             }).Schedule();
         
