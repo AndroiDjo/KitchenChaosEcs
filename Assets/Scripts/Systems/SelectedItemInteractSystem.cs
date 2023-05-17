@@ -8,29 +8,44 @@ using Unity.Transforms;
 partial class SelectedItemInteractSystem : SystemBase {
 
     private static bool TryPutOnPlate(ref EntityCommandBuffer ecb, in IngredientEntityComponent playerIngredient,
-        in IngredientEntityComponent counterIngredient) {
+        in IngredientEntityComponent counterIngredient, in BufferLookup<BurgerIngredientsBufferComponent> ingredientsBufferLookup) {
         
         if (playerIngredient.Entity == Entity.Null || counterIngredient.Entity == Entity.Null) {
             return false;
         }
 
+        IngredientEntityComponent plateEntity = new IngredientEntityComponent();
+        IngredientEntityComponent ingredientEntity = new IngredientEntityComponent();
+        bool canPutIngredientOnPlate = false;
         if (playerIngredient.IngredientType.IngredientType == IngredientType.Plate &&
             counterIngredient.IngredientType.IsBurgerIngredient()) {
-            ecb.AppendToBuffer(playerIngredient.Entity, new BurgerIngredientsBufferComponent {
-                BurgerIngredient = counterIngredient.IngredientType
-            });
-            ecb.DestroyEntity(counterIngredient.Entity);
-            return true;
+            plateEntity = playerIngredient;
+            ingredientEntity = counterIngredient;
+            canPutIngredientOnPlate = true;
         } else if (playerIngredient.IngredientType.IsBurgerIngredient()  &&
                    counterIngredient.IngredientType.IngredientType == IngredientType.Plate) {
-            ecb.AppendToBuffer(counterIngredient.Entity, new BurgerIngredientsBufferComponent {
-                BurgerIngredient = playerIngredient.IngredientType
-            });
-            ecb.DestroyEntity(playerIngredient.Entity);
-            return true;
+            plateEntity = counterIngredient;
+            ingredientEntity = playerIngredient;
+            canPutIngredientOnPlate = true;
         }
 
-        return false;
+        if (!canPutIngredientOnPlate) return false;
+
+        if (!ingredientsBufferLookup.TryGetBuffer(plateEntity.Entity, out DynamicBuffer<BurgerIngredientsBufferComponent> ingredientsBuffer)) {
+            return false;
+        }
+
+        if (ingredientsBuffer.Length >= GameObjectIngredientIconsUIComponent.INGREDIENT_ICONS_LIMIT) {
+            return false;
+        }
+        
+        ecb.AppendToBuffer(plateEntity.Entity, new BurgerIngredientsBufferComponent {
+            BurgerIngredient = ingredientEntity.IngredientType
+        });
+        ecb.DestroyEntity(ingredientEntity.Entity);
+        ecb.SetComponentEnabled<NeedUpdateUIComponent>(plateEntity.Entity, true);
+
+        return true;
     }
     protected override void OnCreate() {
         var playerInputActionsSystem = this.World.GetExistingSystemManaged<CustomInputSystem>();
@@ -41,6 +56,7 @@ partial class SelectedItemInteractSystem : SystemBase {
     private void InstanceOnOnInteractAction(object sender, EventArgs e) {
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
+        var ingredientBufferLookup = SystemAPI.GetBufferLookup<BurgerIngredientsBufferComponent>(true);
         var playerIngredientNative = new NativeArray<IngredientEntityComponent>(1, Allocator.TempJob);
         var playerItemPlaceholderNative = new NativeArray<ItemPlaceholderComponent>(1, Allocator.TempJob);
 
@@ -55,6 +71,7 @@ partial class SelectedItemInteractSystem : SystemBase {
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
+            .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent>()
             .WithNone<CanCutIngredientComponent, CanFryIngredientComponent>()
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
@@ -65,7 +82,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                     // If player holds nothing and there is something on the counter - take it.
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
                 }
             }).Schedule();
         
@@ -75,6 +92,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
             .WithReadOnly(cutCounterLookup)
+            .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanCutIngredientComponent>()
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
@@ -83,7 +101,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
                 }
             }).Schedule();
         
@@ -93,6 +111,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
             .WithReadOnly(fryCounterLookup)
+            .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanFryIngredientComponent>()
             .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
@@ -101,7 +120,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient);
+                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
                 }
             }).Schedule();
         

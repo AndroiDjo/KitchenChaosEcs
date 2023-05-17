@@ -31,3 +31,8 @@ public class GameObjectProgressBarComponent : IComponentData {
     public GameObject ProgressBarGO;
     public Image Image;
 }
+
+public class GameObjectIngredientIconsUIComponent : IComponentData {
+    public IngredientIconsUI IngredientIconsUI;
+    public const int INGREDIENT_ICONS_LIMIT = 9;
+}

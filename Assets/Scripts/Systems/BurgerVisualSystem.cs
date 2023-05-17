@@ -11,8 +11,8 @@ partial class BurgerVisualSystem : SystemBase {
             .WithReadOnly(enabledLookup)
             .ForEach((
                 int entityInQueryIndex,
-                // Just for child visual position refresh after enabling ... facepalm.
-                ref LocalTransform localTransform,
+                Entity entity,
+                ref LocalTransform localTransform, // Just for child visual position refresh after enabling ... facepalm.
                 in DynamicBuffer<CompleteBurgerVisualBufferComponent> completeVisualBuffer,
                 in DynamicBuffer<BurgerIngredientsBufferComponent> burgerIngredientsBuffer
                 ) => {

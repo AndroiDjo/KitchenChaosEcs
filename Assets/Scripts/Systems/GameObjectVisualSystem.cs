@@ -11,10 +11,12 @@ partial struct GameObjectVisualSystem : ISystem {
                 var go = GameObject.Instantiate(visual.Prefab);
                 ecb.AddComponent<MustBeCleanedBeforeDestroyComponent>(entity);
                 ecb.AddComponent(entity, new GameObjectTransformComponent{Transform = go.transform});
-                if (go.TryGetComponent<Animator>(out Animator animator)) {
+                
+                if (go.TryGetComponent(out Animator animator)) {
                     ecb.AddComponent(entity, new GameObjectAnimatorComponent{ Animator = animator });
                 }
-                if (go.TryGetComponent<ProgressBarImageHolder>(out ProgressBarImageHolder progressBarImageHolder)) {
+                
+                if (go.TryGetComponent(out ProgressBarImageHolder progressBarImageHolder)) {
                     var progressBarImage = progressBarImageHolder.GetImageHolder();
                     
                     if (progressBarImage != null) {
@@ -24,6 +26,15 @@ partial struct GameObjectVisualSystem : ISystem {
                         });
                     }
                 }
+
+                if (go.TryGetComponent(out IngredientIconsUI ingredientIconsUI)) {
+                    ecb.AddComponent(entity, new GameObjectIngredientIconsUIComponent {
+                        IngredientIconsUI = ingredientIconsUI
+                    });
+                    ecb.AddComponent<NeedUpdateUIComponent>(entity);
+                    ecb.SetComponentEnabled<NeedUpdateUIComponent>(entity, false);
+                }
+
                 ecb.RemoveComponent<GameObjectVisualComponent>(entity);
         }
   }
