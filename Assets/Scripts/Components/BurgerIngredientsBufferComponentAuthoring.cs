@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 using Unity.Entities;
 
@@ -10,6 +11,15 @@ public class BurgerIngredientsBufferComponentAuthoring : MonoBehaviour {
     }
 }
 
-public struct BurgerIngredientsBufferComponent : IBufferElementData {
+public struct BurgerIngredientsBufferComponent : IBufferElementData, IComparable<BurgerIngredientsBufferComponent> {
     public IngredientTypeComponent BurgerIngredient;
+    public int CompareTo(BurgerIngredientsBufferComponent other) {
+        if (this.BurgerIngredient.IngredientType < other.BurgerIngredient.IngredientType) {
+            return -1;
+        } else if (this.BurgerIngredient.IngredientType == other.BurgerIngredient.IngredientType) {
+            return 0;
+        }
+
+        return 1;
+    }
 }

@@ -2,7 +2,6 @@ using System;
 using Helpers;
 using Unity.Collections;
 using Unity.Entities;
-using Unity.Transforms;
 
 [UpdateAfter(typeof(SetSelectedItemSystem))]
 partial class SelectedItemInteractSystem : SystemBase {
@@ -123,6 +122,50 @@ partial class SelectedItemInteractSystem : SystemBase {
                     TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
                 }
             }).Schedule();
+        
+        // Interact with delivery counter.
+        Entities
+            .WithReadOnly(playerIngredientNative)
+            .WithReadOnly(ingredientBufferLookup)
+            .WithAll<IsSelectedItemComponent, CanDeliverMealsComponent>()
+            .ForEach((ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue, in RecipesListComponent recipesListBlob) => {
+
+                if (playerIngredientNative[0].Entity == Entity.Null ||
+                    playerIngredientNative[0].IngredientType.IngredientType != IngredientType.Plate) {
+                    return;
+                }
+
+                if (!ingredientBufferLookup.TryGetBuffer(playerIngredientNative[0].Entity,
+                    out DynamicBuffer<BurgerIngredientsBufferComponent> ingredientsOnThePlate)) {
+                    return;
+                }
+
+                var ingredientsOnThePlateArray = ingredientsOnThePlate.ToNativeArray(Allocator.Temp);
+                ingredientsOnThePlateArray.Sort();
+
+                for (int recipeQueueIndex = 0; recipeQueueIndex < recipesQueue.Length; recipeQueueIndex++) {
+                    ref Recipe recipe = ref recipesListBlob.RecipesReference.Value.Recipes[recipesQueue[recipeQueueIndex].RecipeIndex];
+                    
+                    if (recipe.Ingredients.Length != ingredientsOnThePlateArray.Length) {
+                        continue;
+                    }
+
+                    bool ingredientsAreEqual = true;
+                    for (int i = 0; i < ingredientsOnThePlateArray.Length; i++) {
+                        if (ingredientsOnThePlateArray[i].BurgerIngredient.IngredientType != recipe.Ingredients[i]) {
+                            ingredientsAreEqual = false;
+                            break;
+                        }
+                    }
+
+                    if (ingredientsAreEqual) {
+                        recipesQueue.RemoveAt(recipeQueueIndex);
+                        ecb.DestroyEntity(playerIngredientNative[0].Entity);
+                        return;
+                    }
+                }
+            })
+            .Schedule();
         
         // Interact with plates counter.
         Entities
