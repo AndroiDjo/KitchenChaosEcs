@@ -282,11 +282,11 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 2278149621523778782, guid: 5f439597601534c4894ef386101d1b2a,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 1070655592212497185}
+      addedObject: {fileID: 5768721682770471029}
     - targetCorrespondingSourceObject: {fileID: 2278149621523778782, guid: 5f439597601534c4894ef386101d1b2a,
         type: 3}
       insertIndex: -1
-      addedObject: {fileID: 5768721682770471029}
+      addedObject: {fileID: 5513510439150306081}
   m_SourcePrefab: {fileID: 100100000, guid: 5f439597601534c4894ef386101d1b2a, type: 3}
 --- !u!4 &891371991212112040 stripped
 Transform:
@@ -318,19 +318,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: efc57ff87e114b74837e1acdc764eb63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1070655592212497185
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6188134702921863331}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e646dad79464c008753bcfcb54d56fe, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  recipeListSo: {fileID: 11400000, guid: 1b514ae2cd4f84534b88fd267e275e5b, type: 2}
 --- !u!114 &5768721682770471029
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -345,6 +332,18 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   OrdersLimit: 4
   GenerateDelay: 5
+--- !u!114 &5513510439150306081
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6188134702921863331}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fa38b7049d6e4fadafe4585b06a99e5c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1001 &7212729285819038794
 PrefabInstance:
   m_ObjectHideFlags: 0

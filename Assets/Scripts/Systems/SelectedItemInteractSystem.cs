@@ -3,8 +3,11 @@ using Helpers;
 using Unity.Collections;
 using Unity.Entities;
 
+[RequireMatchingQueriesForUpdate]
 [UpdateAfter(typeof(SetSelectedItemSystem))]
 partial class SelectedItemInteractSystem : SystemBase {
+    
+    private RecipesListComponent _recipesList;
 
     private static bool TryPutOnPlate(ref EntityCommandBuffer ecb, in IngredientEntityComponent playerIngredient,
         in IngredientEntityComponent counterIngredient, in BufferLookup<BurgerIngredientsBufferComponent> ingredientsBufferLookup) {
@@ -52,12 +55,17 @@ partial class SelectedItemInteractSystem : SystemBase {
         playerInputActionsSystem.OnInteractAlternateAction += InstanceOnOnInteractAlternateAction;
     }
 
+    protected override void OnStartRunning() {
+        _recipesList = SystemAPI.GetSingleton<RecipesListComponent>();
+    }
+
     private void InstanceOnOnInteractAction(object sender, EventArgs e) {
         var ecbSystem = this.World.GetExistingSystemManaged<BeginSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
         var ingredientBufferLookup = SystemAPI.GetBufferLookup<BurgerIngredientsBufferComponent>(true);
         var playerIngredientNative = new NativeArray<IngredientEntityComponent>(1, Allocator.TempJob);
         var playerItemPlaceholderNative = new NativeArray<ItemPlaceholderComponent>(1, Allocator.TempJob);
+        RecipesListComponent recipesList = _recipesList;
 
         Entities
             .WithAll<PlayerTagComponent>()
@@ -128,7 +136,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanDeliverMealsComponent>()
-            .ForEach((ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue, in RecipesListComponent recipesListBlob) => {
+            .ForEach((ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue) => {
 
                 if (playerIngredientNative[0].Entity == Entity.Null ||
                     playerIngredientNative[0].IngredientType.IngredientType != IngredientType.Plate) {
@@ -144,7 +152,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 ingredientsOnThePlateArray.Sort();
 
                 for (int recipeQueueIndex = 0; recipeQueueIndex < recipesQueue.Length; recipeQueueIndex++) {
-                    ref Recipe recipe = ref recipesListBlob.RecipesReference.Value.Recipes[recipesQueue[recipeQueueIndex].RecipeIndex];
+                    ref Recipe recipe = ref recipesList.RecipesReference.Value.Recipes[recipesQueue[recipeQueueIndex].RecipeIndex];
                     
                     if (recipe.Ingredients.Length != ingredientsOnThePlateArray.Length) {
                         continue;
@@ -159,8 +167,9 @@ partial class SelectedItemInteractSystem : SystemBase {
                     }
 
                     if (ingredientsAreEqual) {
-                        recipesQueue.RemoveAt(recipeQueueIndex);
+                        ecb.DestroyEntity(recipesQueue[recipeQueueIndex].EntityUI);
                         ecb.DestroyEntity(playerIngredientNative[0].Entity);
+                        recipesQueue.RemoveAt(recipeQueueIndex);
                         return;
                     }
                 }

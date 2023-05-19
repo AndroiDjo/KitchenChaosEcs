@@ -6,19 +6,13 @@ using UnityEngine;
 public class IngredientIconsUI : MonoBehaviour {
     [SerializeField] private Canvas canvas;
     [SerializeField] private IngredientIconElement iconElementTemplate;
-    [SerializeField] private List<IngredientIcon> ingredientIcons;
+    [SerializeField] private IngredientsListSO ingredientsList;
     private Dictionary<IngredientType, Sprite> iconsDictionary;
-
-    [Serializable]
-    public struct IngredientIcon {
-        public IngredientType IngredientType;
-        public Sprite Sprite;
-    }
 
     private void Awake() {
         iconsDictionary = new Dictionary<IngredientType, Sprite>();
-        foreach (IngredientIcon element in ingredientIcons) {
-            iconsDictionary[element.IngredientType] = element.Sprite;
+        foreach (IngredientSO element in ingredientsList.ingredientsList) {
+            iconsDictionary[element.ingredientType] = element.sprite;
         }
     }
 

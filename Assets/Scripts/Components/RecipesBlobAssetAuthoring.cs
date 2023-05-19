@@ -17,7 +17,7 @@ public class RecipesBlobAssetAuthoring : MonoBehaviour {
                 BlobBuilderArray<IngredientType> ingredientsBuilder =
                     builder.Allocate(ref recipeBuilder[i].Ingredients, recipeSo.ingredients.Count);
                 for (int j = 0; j < recipeSo.ingredients.Count; j++) {
-                    ingredientsBuilder[j] = recipeSo.ingredients[j];
+                    ingredientsBuilder[j] = recipeSo.ingredients[j].ingredientType;
                 }
                 builder.AllocateString(ref recipeBuilder[i].RecipeName, recipeSo.recipeName);
             }
@@ -29,7 +29,6 @@ public class RecipesBlobAssetAuthoring : MonoBehaviour {
             
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new RecipesListComponent{RecipesReference = blobReference});
-            AddBuffer<RecipesQueueElementComponent>(entity);
         }
     }
 }
@@ -46,9 +45,4 @@ public struct RecipeList {
 
 public struct RecipesListComponent : IComponentData {
     public BlobAssetReference<RecipeList> RecipesReference;
-}
-
-// RecipesQueueElementComponent stores index of Recipe in blob array.
-public struct RecipesQueueElementComponent : IBufferElementData {
-    public int RecipeIndex;
 }

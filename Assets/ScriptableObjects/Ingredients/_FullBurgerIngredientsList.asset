@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a56d9ee7c4f64eba9fd0dbe7620db22a, type: 3}
+  m_Name: _FullBurgerIngredientsList
+  m_EditorClassIdentifier: 
+  ingredientsList:
+  - {fileID: 11400000, guid: 8d53599cb7c7f4d3ba821005f6e6c0ba, type: 2}
+  - {fileID: 11400000, guid: 5b71798d7defb4b10884f6d931ddaf29, type: 2}
+  - {fileID: 11400000, guid: 603664ac20e324b319dee845b34eac5c, type: 2}
+  - {fileID: 11400000, guid: a1784ab97bf4e479ba60fbd784bf3957, type: 2}
+  - {fileID: 11400000, guid: 650c3494b47de485b9791a6e292eda75, type: 2}

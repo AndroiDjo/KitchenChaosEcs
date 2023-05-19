@@ -3,7 +3,7 @@ using Unity.Entities;
 using UnityEngine.UI;
 
 public class GameObjectVisualComponentAuthoring : MonoBehaviour {
-    [SerializeField] private GameObject VisualPrefab;
+    public GameObject VisualPrefab;
 
     class Baker : Baker<GameObjectVisualComponentAuthoring> {
         public override void Bake(GameObjectVisualComponentAuthoring authoring) {
@@ -21,6 +21,10 @@ public class GameObjectVisualComponent : IComponentData {
 
 public class GameObjectTransformComponent : ICleanupComponentData {
     public Transform Transform;
+}
+
+public class GameObjectBindingComponent : ICleanupComponentData {
+    public GameObject GameObject;
 }
 
 public class GameObjectAnimatorComponent : IComponentData {
