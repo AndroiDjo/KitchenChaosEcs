@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class DeliveryManagerUI : MonoBehaviour {
     [SerializeField] private Transform container;
-    [SerializeField] private GameObject templateElement;
+    [SerializeField] private DeliveryManagerElement templateElement;
     
     private static DeliveryManagerUI _instance;
 
@@ -26,13 +26,12 @@ public class DeliveryManagerUI : MonoBehaviour {
         }
     }
 
-    public GameObject CreateElement(string recipeName) {
-        Debug.Log("recipe for "+ recipeName);
-        GameObject spawned = GameObject.Instantiate(templateElement, container);
-        if (spawned.TryGetComponent<DeliveryManagerElement>(out DeliveryManagerElement deliveryManagerElement)) {
-            deliveryManagerElement.SetText(recipeName);
-        }
-
+    public GameObject CreateElement(string recipeName, IngredientType[] ingredientTypes) {
+        GameObject spawned = GameObject.Instantiate(templateElement.gameObject, container);
+        DeliveryManagerElement deliveryManager = spawned.GetComponent<DeliveryManagerElement>();
+        deliveryManager.SetText(recipeName);
+        deliveryManager.SetIcons(ingredientTypes);
+        
         return spawned;
     }
 }

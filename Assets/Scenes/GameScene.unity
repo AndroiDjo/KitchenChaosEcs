@@ -599,7 +599,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   container: {fileID: 759843587}
-  templateElement: {fileID: 8870684507482267464, guid: 37b4689182adf4d3a9112a78dee7ae89,
+  templateElement: {fileID: 2874110531941447866, guid: 37b4689182adf4d3a9112a78dee7ae89,
     type: 3}
 --- !u!1 &832575517
 GameObject:

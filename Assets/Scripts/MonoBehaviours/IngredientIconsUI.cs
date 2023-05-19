@@ -4,7 +4,7 @@ using Unity.Entities;
 using UnityEngine;
 
 public class IngredientIconsUI : MonoBehaviour {
-    [SerializeField] private Canvas canvas;
+    [SerializeField] private Transform container;
     [SerializeField] private IngredientIconElement iconElementTemplate;
     [SerializeField] private IngredientsListSO ingredientsList;
     private Dictionary<IngredientType, Sprite> iconsDictionary;
@@ -14,17 +14,37 @@ public class IngredientIconsUI : MonoBehaviour {
         foreach (IngredientSO element in ingredientsList.ingredientsList) {
             iconsDictionary[element.ingredientType] = element.sprite;
         }
+        iconElementTemplate.gameObject.SetActive(false);
     }
 
     public void UpdateIcons(DynamicBuffer<BurgerIngredientsBufferComponent> burgerIngredients) {
-        foreach (Transform child in canvas.transform) {
-            Destroy(child.gameObject);
-        }
+        ClearContainer();
 
         foreach (BurgerIngredientsBufferComponent ingredient in burgerIngredients) {
-            if (iconsDictionary.TryGetValue(ingredient.BurgerIngredient.IngredientType, out Sprite sprite)) {
-                var newIcon = Instantiate(iconElementTemplate.gameObject, canvas.transform);
-                newIcon.GetComponent<IngredientIconElement>().SetSprite(sprite);
+            SetSpriteByIngredientType(ingredient.BurgerIngredient.IngredientType);
+        }
+    }
+    
+    public void UpdateIcons(IngredientType[] ingredientTypes) {
+        ClearContainer();
+
+        foreach (IngredientType ingredientType in ingredientTypes) {
+            SetSpriteByIngredientType(ingredientType);
+        }
+    }
+
+    private void SetSpriteByIngredientType(IngredientType ingredientType) {
+        if (iconsDictionary.TryGetValue(ingredientType, out Sprite sprite)) {
+            var newIcon = Instantiate(iconElementTemplate.gameObject, container);
+            newIcon.GetComponent<IngredientIconElement>().SetSprite(sprite);
+            newIcon.SetActive(true);
+        }
+    }
+    
+    private void ClearContainer() {
+        foreach (Transform child in container) {
+            if (child != iconElementTemplate.transform) {
+                Destroy(child.gameObject);
             }
         }
     }

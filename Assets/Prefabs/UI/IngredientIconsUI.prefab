@@ -184,7 +184,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6063342d2fff249b095020488f41d438, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  canvas: {fileID: 2126338265940618402}
+  container: {fileID: 2454747074635327333}
   iconElementTemplate: {fileID: 996853965790475099, guid: c98cfb89759e24654bc3c0379f3dd54e,
     type: 3}
   ingredientsList: {fileID: 11400000, guid: 4cec9e419b8c547c58e53d7b3d2ee45d, type: 2}
