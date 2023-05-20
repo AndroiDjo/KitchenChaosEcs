@@ -5,12 +5,18 @@ public class PlayerAnimationStateComponentAuthoring : MonoBehaviour {
     class Baker : Baker<PlayerAnimationStateComponentAuthoring> {
         public override void Bake(PlayerAnimationStateComponentAuthoring authoring) {
             Entity entity = GetEntity(TransformUsageFlags.None);
-            AddComponent<PlayerAnimationIsWalkingComponent>(entity);
             AddComponent<CanHaveWalkingAnimationComponent>(entity);
+            AddComponent<CanPlayWalkingSoundComponent>(entity);
+            AddComponent<PlayerIsWalkingComponent>(entity);
+            SetComponentEnabled<PlayerIsWalkingComponent>(entity, false);
+            AddComponent<PlayerIsWalkingSoundComponent>(entity);
+            SetComponentEnabled<PlayerIsWalkingSoundComponent>(entity, false);
         }
     }
 }
 
-public struct PlayerAnimationIsWalkingComponent : IComponentData, IEnableableComponent {}
-
+public struct PlayerIsWalkingComponent : IComponentData, IEnableableComponent {}
 public struct CanHaveWalkingAnimationComponent : IComponentData {}
+public struct PlayerIsWalkingSoundComponent : IComponentData, IEnableableComponent {}
+public struct CanPlayWalkingSoundComponent : IComponentData {}
+

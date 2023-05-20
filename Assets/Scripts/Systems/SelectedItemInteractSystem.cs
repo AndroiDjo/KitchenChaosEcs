@@ -80,16 +80,21 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerItemPlaceholderNative)
             .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent>()
+            .WithAll<CanPlayPickupSoundComponent, CanPlayDropSoundComponent>()
             .WithNone<CanCutIngredientComponent, CanFryIngredientComponent>()
-            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+            .ForEach((Entity entity, ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null) {
                     // If player holds something - put it on counter.
+                    ecb.SetComponentEnabled<MustPlayDropSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
                     // If player holds nothing and there is something on the counter - take it.
+                    ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
+                    if (TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup)) {
+                        ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
+                    }
                 }
             }).Schedule();
         
@@ -101,14 +106,19 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(cutCounterLookup)
             .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanCutIngredientComponent>()
-            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+            .WithAll<CanPlayPickupSoundComponent, CanPlayDropSoundComponent>()
+            .ForEach((Entity entity, ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
                     cutCounterLookup.HasComponent(playerIngredientNative[0].Entity)) {
+                    ecb.SetComponentEnabled<MustPlayDropSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                    ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
+                    if (TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup)) {
+                        ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
+                    }
                 }
             }).Schedule();
         
@@ -120,14 +130,19 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(fryCounterLookup)
             .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanHoldIngredientComponent, CanFryIngredientComponent>()
-            .ForEach((ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
+            .WithAll<CanPlayPickupSoundComponent, CanPlayDropSoundComponent>()
+            .ForEach((Entity entity, ref IngredientEntityComponent ingredient, in ItemPlaceholderComponent itemPlaceholder) => {
                 if (playerIngredientNative[0].Entity != Entity.Null && ingredient.Entity == Entity.Null &&
                     fryCounterLookup.HasComponent(playerIngredientNative[0].Entity)) {
+                    ecb.SetComponentEnabled<MustPlayDropSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, playerIngredientNative[0].Entity, itemPlaceholder, false);
                 } else if (playerIngredientNative[0].Entity == Entity.Null && ingredient.Entity != Entity.Null) {
+                    ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
                     EntitySystemHelper.SetNewParentToEntity(ref ecb, ingredient.Entity, playerItemPlaceholderNative[0], false);
                 } else {
-                    TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup);
+                    if (TryPutOnPlate(ref ecb, playerIngredientNative[0], ingredient, ingredientBufferLookup)) {
+                        ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
+                    }
                 }
             }).Schedule();
         
@@ -136,7 +151,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(ingredientBufferLookup)
             .WithAll<IsSelectedItemComponent, CanDeliverMealsComponent>()
-            .ForEach((ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue) => {
+            .ForEach((Entity entity, ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue) => {
 
                 if (playerIngredientNative[0].Entity == Entity.Null ||
                     playerIngredientNative[0].IngredientType.IngredientType != IngredientType.Plate) {
@@ -169,10 +184,15 @@ partial class SelectedItemInteractSystem : SystemBase {
                     if (ingredientsAreEqual) {
                         ecb.DestroyEntity(recipesQueue[recipeQueueIndex].EntityUI);
                         ecb.DestroyEntity(playerIngredientNative[0].Entity);
+                        ecb.SetComponentEnabled<IsDeliverSuccessSoundComponent>(entity, true);
                         recipesQueue.RemoveAt(recipeQueueIndex);
+
                         return;
                     }
                 }
+                
+                ecb.DestroyEntity(playerIngredientNative[0].Entity);
+                ecb.SetComponentEnabled<IsDeliverFailSoundComponent>(entity, true);
             })
             .Schedule();
         
@@ -180,8 +200,8 @@ partial class SelectedItemInteractSystem : SystemBase {
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
-            .WithAll<IsSelectedItemComponent>()
-            .ForEach((ref DynamicBuffer<ItemsBufferComponent> itemsBuffer) => {
+            .WithAll<IsSelectedItemComponent, CanPlayPickupSoundComponent>()
+            .ForEach((Entity entity, ref DynamicBuffer<ItemsBufferComponent> itemsBuffer) => {
                 if (playerIngredientNative[0].Entity != Entity.Null || itemsBuffer.Length == 0) {
                     return;
                 }
@@ -190,6 +210,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 Entity topPlate = itemsBuffer[lastIndex].Item;
                 EntitySystemHelper.SetNewParentToEntity(ref ecb, topPlate, playerItemPlaceholderNative[0], false);
                 itemsBuffer.RemoveAt(lastIndex);
+                ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
             }).Schedule();
         
         // Container counter spawn ingredient.
@@ -197,14 +218,15 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(playerItemPlaceholderNative)
             .WithDisposeOnCompletion(playerItemPlaceholderNative)
-            .WithAll<IsSelectedItemComponent, SpawnOnInteractComponent>()
-            .ForEach((in SpawnPrefabComponent ingredientPrefab) => {
+            .WithAll<IsSelectedItemComponent, SpawnOnInteractComponent, CanPlayPickupSoundComponent>()
+            .ForEach((Entity entity, in SpawnPrefabComponent ingredientPrefab) => {
                 if (playerIngredientNative[0].Entity != Entity.Null) {
                     return;
                 }
         
                 Entity spawnedEntity = ecb.Instantiate(ingredientPrefab.Prefab);
                 EntitySystemHelper.SetNewParentToEntity(ref ecb, spawnedEntity, playerItemPlaceholderNative[0], true);
+                ecb.SetComponentEnabled<MustPlayPickupSoundComponent>(entity, true);
             })
             .Schedule();
         
@@ -224,6 +246,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .ForEach((Entity entity) => {
                 if (playerIngredientNative[0].Entity != Entity.Null) {
                    ecb.DestroyEntity(playerIngredientNative[0].Entity);
+                   ecb.SetComponentEnabled<IsTrashSoundComponent>(entity, true);
                 }
             }).Schedule();
         
@@ -239,6 +262,7 @@ partial class SelectedItemInteractSystem : SystemBase {
             .WithNone<IsCuttingAnimationComponent>()
             .ForEach((Entity entity) => {
                 ecb.SetComponentEnabled<IsCuttingAnimationComponent>(entity, true);
+                ecb.SetComponentEnabled<IsCuttingSoundComponent>(entity, true);
             }).Schedule();
 
         Entities

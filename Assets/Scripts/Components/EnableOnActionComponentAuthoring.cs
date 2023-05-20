@@ -16,4 +16,5 @@ public class EnableOnActionComponentAuthoring : MonoBehaviour {
 
 public struct EnableOnActionComponent : IComponentData {
     public Entity Entity;
+    public bool Enabled;
 }

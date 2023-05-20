@@ -40,3 +40,7 @@ public class GameObjectIngredientIconsUIComponent : IComponentData {
     public IngredientIconsUI IngredientIconsUI;
     public const int INGREDIENT_ICONS_LIMIT = 9;
 }
+
+public class GameObjectAudioSourceComponent : IComponentData {
+    public AudioSourceHolder AudioSourceHolder;
+}

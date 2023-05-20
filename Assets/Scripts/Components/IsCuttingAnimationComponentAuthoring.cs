@@ -8,9 +8,13 @@ public class IsCuttingAnimationComponentAuthoring : MonoBehaviour {
             AddComponent<CanHaveIsCuttingAnimationComponent>(entity);
             AddComponent<IsCuttingAnimationComponent>(entity);
             SetComponentEnabled<IsCuttingAnimationComponent>(entity, false);
+            AddComponent<IsCuttingSoundComponent>(entity);
+            SetComponentEnabled<IsCuttingSoundComponent>(entity, false);
         }
     }
 }
 public struct IsCuttingAnimationComponent : IComponentData, IEnableableComponent {}
 
 public struct CanHaveIsCuttingAnimationComponent : IComponentData {}
+
+public struct IsCuttingSoundComponent : IComponentData, IEnableableComponent {}

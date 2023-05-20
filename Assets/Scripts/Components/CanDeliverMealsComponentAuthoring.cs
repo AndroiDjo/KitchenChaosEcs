@@ -6,8 +6,15 @@ public class CanDeliverMealsComponentAuthoring : MonoBehaviour {
         public override void Bake(CanDeliverMealsComponentAuthoring authoring) {
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent<CanDeliverMealsComponent>(entity);
+            AddComponent<IsDeliverSuccessSoundComponent>(entity);
+            SetComponentEnabled<IsDeliverSuccessSoundComponent>(entity, false);
+            AddComponent<IsDeliverFailSoundComponent>(entity);
+            SetComponentEnabled<IsDeliverFailSoundComponent>(entity, false);
         }
     }
 }
 
 public struct CanDeliverMealsComponent : IComponentData {}
+
+public struct IsDeliverSuccessSoundComponent : IComponentData, IEnableableComponent {}
+public struct IsDeliverFailSoundComponent : IComponentData, IEnableableComponent {}

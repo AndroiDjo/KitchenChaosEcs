@@ -14,6 +14,10 @@ partial struct GameObjectVisualSystem : ISystem {
             if (go.TryGetComponent(out Animator animator)) {
                 ecb.AddComponent(entity, new GameObjectAnimatorComponent{ Animator = animator });
             }
+
+            if (go.TryGetComponent(out AudioSourceHolder audioSource)) {
+                ecb.AddComponent(entity, new GameObjectAudioSourceComponent{ AudioSourceHolder = audioSource });
+            }
             
             if (go.TryGetComponent(out ProgressBarImageHolder progressBarImageHolder)) {
                 var progressBarImage = progressBarImageHolder.GetImageHolder();

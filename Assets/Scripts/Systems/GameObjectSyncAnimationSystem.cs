@@ -9,7 +9,7 @@ partial struct GameObjectSyncAnimationSystem : ISystem {
     
     public void OnUpdate(ref SystemState state) {
         foreach (var animator in SystemAPI.Query<GameObjectAnimatorComponent>()
-                     .WithAll<CanHaveWalkingAnimationComponent, PlayerAnimationIsWalkingComponent>()) {
+                     .WithAll<CanHaveWalkingAnimationComponent, PlayerIsWalkingComponent>()) {
             if (!animator.Animator.GetBool(IS_WALKING)) {
                 animator.Animator.SetBool(IS_WALKING, true);
             }
@@ -17,7 +17,7 @@ partial struct GameObjectSyncAnimationSystem : ISystem {
         
         foreach (var animator in SystemAPI.Query<GameObjectAnimatorComponent>()
                      .WithAll<CanHaveWalkingAnimationComponent>()
-                     .WithNone<PlayerAnimationIsWalkingComponent>()
+                     .WithNone<PlayerIsWalkingComponent>()
                  ) {
             if (animator.Animator.GetBool(IS_WALKING)) {
                 animator.Animator.SetBool(IS_WALKING, false);

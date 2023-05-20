@@ -6,8 +6,12 @@ public class CanDestroyIngredientComponentAuthoring : MonoBehaviour {
         public override void Bake(CanDestroyIngredientComponentAuthoring authoring) {
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent<CanDestroyIngredientComponent>(entity);
+            AddComponent<IsTrashSoundComponent>(entity);
+            SetComponentEnabled<IsTrashSoundComponent>(entity, false);
         }
     }
 }
 
 public struct CanDestroyIngredientComponent : IComponentData {}
+
+public struct IsTrashSoundComponent : IComponentData, IEnableableComponent {}
