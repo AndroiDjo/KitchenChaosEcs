@@ -17,8 +17,8 @@ public class GameOverUI : MonoBehaviour {
     }
 
     public void ShowScore(int score) {
-        scoreText.SetText(score.ToString());
         if (!isActive) {
+            scoreText.SetText(score.ToString());
             gameObject.SetActive(true);
             isActive = true;
         }

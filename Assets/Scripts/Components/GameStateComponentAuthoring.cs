@@ -1,4 +1,3 @@
-using System;
 using UnityEngine;
 using Unity.Entities;
 
@@ -8,17 +7,15 @@ public class GameStateComponentAuthoring : MonoBehaviour {
         public override void Bake(GameStateComponentAuthoring authoring) {
             Entity entity = GetEntity(TransformUsageFlags.None);
             AddComponent(entity, new GameStateComponent {
-                GameState = GameState.WaitingToStart,
-                PreviousState = GameState.None
+                GameState = GameState.WaitingToStart
             });
-            AddComponent<IsStateChangedComponent>(entity);
+            AddComponent<GameScoreComponent>(entity);
         }
     }
 }
 
 public struct GameStateComponent : IComponentData {
     public GameState GameState;
-    public GameState PreviousState;
 
     public bool IsGameActive() {
         switch (GameState) {
@@ -38,4 +35,6 @@ public enum GameState {
     GameOver
 }
 
-public struct IsStateChangedComponent: IComponentData, IEnableableComponent {}
+public struct GameScoreComponent : IComponentData {
+    public int Score;
+}
