@@ -4,9 +4,15 @@ using Unity.Entities;
 partial class SetSelectedItemSystem : SystemBase {
     protected override void OnUpdate() {
         NativeArray<Entity> selectedItemNative = new NativeArray<Entity>(1, Allocator.TempJob);
+        NativeArray<GameStateComponent> gameStateNative = new NativeArray<GameStateComponent>(1, Allocator.TempJob);
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         EntityCommandBuffer ecb = ecbSystem.CreateCommandBuffer();
 
+        Entities
+            .ForEach((in GameStateComponent gameState) => {
+                gameStateNative[0] = gameState;
+            }).Schedule();
+        
         Entities
             .WithAll<PlayerTagComponent>()
             .ForEach((Entity entity, in PlayerInteractTargetComponent interactTarget) => {
@@ -28,8 +34,9 @@ partial class SetSelectedItemSystem : SystemBase {
             .WithAll<CanBeSelectedComponent>()
             .WithNone<IsSelectedItemComponent>()
             .WithDisposeOnCompletion(selectedItemNative)
+            .WithDisposeOnCompletion(gameStateNative)
             .ForEach((Entity entity, in SelectedItemVisualComponent selectedVisual) => {
-                if (entity != selectedItemNative[0])
+                if (!gameStateNative[0].IsGameActive() || entity != selectedItemNative[0])
                     return;
 
                 ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, true);
