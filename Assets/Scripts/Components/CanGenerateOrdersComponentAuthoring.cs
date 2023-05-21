@@ -11,6 +11,8 @@ public class CanGenerateOrdersComponentAuthoring : MonoBehaviour {
                 OrdersLimit = authoring.OrdersLimit,
                 GenerateDelay = authoring.GenerateDelay
             });
+            AddComponent<IsGenerateOrdersRestrictedComponent>(entity);
+            SetComponentEnabled<IsGenerateOrdersRestrictedComponent>(entity, false);
         }
     }
 }
@@ -20,3 +22,5 @@ public struct CanGenerateOrdersComponent : IComponentData {
     public float GenerateDelay;
     public float Timer;
 }
+
+public struct IsGenerateOrdersRestrictedComponent : IComponentData, IEnableableComponent {}

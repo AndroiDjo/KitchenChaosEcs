@@ -1,21 +1,23 @@
 using System;
-using TMPro;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
-public class GameCountdownUI : MonoBehaviour {
-
-    [SerializeField] private TextMeshProUGUI countdownText;
-    public static GameCountdownUI Instance { get; private set; }
-
+public class GamePlayingClockUI : MonoBehaviour {
+    [SerializeField] private Image clockImage;
+    
+    public static GamePlayingClockUI Instance { get; private set; }
     private bool isActive;
 
     public void Awake() {
         Instance = this;
         gameObject.SetActive(false);
+        isActive = false;
     }
 
-    public void SetText(string currentCountdown) {
-        countdownText.SetText(currentCountdown);
+    public void SetTimer(float currentTime) {
+        clockImage.fillAmount = currentTime;
         if (!isActive) {
             gameObject.SetActive(true);
             isActive = true;
@@ -28,5 +30,4 @@ public class GameCountdownUI : MonoBehaviour {
             gameObject.SetActive(false);
         }
     }
-    
 }

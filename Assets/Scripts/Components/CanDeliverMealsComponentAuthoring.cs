@@ -14,7 +14,9 @@ public class CanDeliverMealsComponentAuthoring : MonoBehaviour {
     }
 }
 
-public struct CanDeliverMealsComponent : IComponentData {}
+public struct CanDeliverMealsComponent : IComponentData {
+    public int SuccessOrders;
+}
 
 public struct IsDeliverSuccessSoundComponent : IComponentData, IEnableableComponent {}
 public struct IsDeliverFailSoundComponent : IComponentData, IEnableableComponent {}

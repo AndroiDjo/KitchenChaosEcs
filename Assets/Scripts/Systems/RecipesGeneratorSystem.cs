@@ -29,6 +29,7 @@ partial class RecipesGeneratorSystem : SystemBase {
         
         Entities
             .WithNativeDisableParallelForRestriction(Randoms)
+            .WithNone<IsGenerateOrdersRestrictedComponent>()
             .ForEach((
                 int nativeThreadIndex,
                 Entity entity,

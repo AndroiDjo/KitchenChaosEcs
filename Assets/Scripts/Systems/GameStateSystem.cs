@@ -1,9 +1,16 @@
+using Unity.Collections;
 using Unity.Entities;
 
 partial class GameStateSystem : SystemBase {
     protected override void OnUpdate() {
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         var ecb = ecbSystem.CreateCommandBuffer();
+        NativeArray<GameStateComponent> gameStateNative = new NativeArray<GameStateComponent>(1, Allocator.TempJob);
+
+        Entities
+            .ForEach((in GameStateComponent gameState) => {
+                gameStateNative[0] = gameState;
+            }).Schedule();
         
         Entities
             .WithAll<CanWaitingToStartComponent, IsStateChangedComponent>()
@@ -20,6 +27,48 @@ partial class GameStateSystem : SystemBase {
             .ForEach((Entity entity, in GameStateComponent gameState) => {
                 if (gameState.GameState == GameState.CountdownToStart) {
                     ecb.SetComponentEnabled<CountdownToStartComponent>(entity, true);
+                }
+            }).Schedule();
+        
+        Entities
+            .WithAll<CanHavePlayingTimerComponent, IsStateChangedComponent>()
+            .WithNone<PlayingTimerComponent>()
+            .ForEach((Entity entity, in GameStateComponent gameState) => {
+                if (gameState.GameState == GameState.GamePlaying) {
+                    ecb.SetComponentEnabled<PlayingTimerComponent>(entity, true);
+                }
+            }).Schedule();
+        
+        Entities
+            .WithAll<CanHaveGameOverStateComponent, IsStateChangedComponent>()
+            .WithNone<IsGameOverStateComponent>()
+            .ForEach((Entity entity, in GameStateComponent gameState) => {
+                if (gameState.GameState == GameState.GameOver) {
+                    ecb.SetComponentEnabled<IsGameOverStateComponent>(entity, true);
+                }
+            }).Schedule();
+
+        Entities
+            .WithAll<CanGenerateOrdersComponent>()
+            .ForEach((Entity entity) => {
+                if (gameStateNative[0].IsGameActive()) {
+                    ecb.SetComponentEnabled<IsGenerateOrdersRestrictedComponent>(entity, false);
+                }
+                else {
+                    ecb.SetComponentEnabled<IsGenerateOrdersRestrictedComponent>(entity, true);
+                }
+            }).Schedule();
+        
+        Entities
+            .WithDisposeOnCompletion(gameStateNative)
+            .WithAll<CanBeSelectedComponent>()
+            .ForEach((Entity entity) => {
+                if (gameStateNative[0].IsGameActive()) {
+                    ecb.SetComponentEnabled<IsSelectionRestricted>(entity, false);
+                }
+                else {
+                    ecb.SetComponentEnabled<IsSelectionRestricted>(entity, true);
+                    ecb.SetComponentEnabled<IsSelectedItemComponent>(entity, false);
                 }
             }).Schedule();
 

@@ -150,8 +150,8 @@ partial class SelectedItemInteractSystem : SystemBase {
         Entities
             .WithReadOnly(playerIngredientNative)
             .WithReadOnly(ingredientBufferLookup)
-            .WithAll<IsSelectedItemComponent, CanDeliverMealsComponent>()
-            .ForEach((Entity entity, ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue) => {
+            .WithAll<IsSelectedItemComponent>()
+            .ForEach((Entity entity, ref DynamicBuffer<RecipesQueueElementComponent> recipesQueue, ref CanDeliverMealsComponent canDeliverMeals) => {
 
                 if (playerIngredientNative[0].Entity == Entity.Null ||
                     playerIngredientNative[0].IngredientType.IngredientType != IngredientType.Plate) {
@@ -186,6 +186,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                         ecb.DestroyEntity(playerIngredientNative[0].Entity);
                         ecb.SetComponentEnabled<IsDeliverSuccessSoundComponent>(entity, true);
                         recipesQueue.RemoveAt(recipeQueueIndex);
+                        canDeliverMeals.SuccessOrders++;
 
                         return;
                     }
