@@ -10,7 +10,7 @@ partial struct CleanupEntitySystem : ISystem {
                      .WithEntityAccess()
                      .WithNone<MustBeCleanedBeforeDestroyComponent>()
                  ) {
-            if (transformGO.Transform.gameObject != null) {
+            if (transformGO.Transform != null && transformGO.Transform.gameObject != null) {
                 GameObject.Destroy(transformGO.Transform.gameObject);
             }
             ecb.RemoveComponent<GameObjectTransformComponent>(entity);

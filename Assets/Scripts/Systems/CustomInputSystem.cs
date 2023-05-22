@@ -7,6 +7,7 @@ using UnityEngine.InputSystem;
 partial class CustomInputSystem : SystemBase {
     public event EventHandler OnInteractAction;
     public event EventHandler OnInteractAlternateAction;
+    public event EventHandler OnPauseAction;
     
     private CustomInputActions _customInputActions;
     
@@ -16,6 +17,19 @@ partial class CustomInputSystem : SystemBase {
         
         _customInputActions.Player.Interact.performed += InteractOnperformed;
         _customInputActions.Player.InteractAlternate.performed += InteractAlternateOnperformed;
+        _customInputActions.Player.Pause.performed += PauseOnperformed;
+    }
+
+    protected override void OnDestroy() {
+        _customInputActions.Player.Interact.performed -= InteractOnperformed;
+        _customInputActions.Player.InteractAlternate.performed -= InteractAlternateOnperformed;
+        _customInputActions.Player.Pause.performed -= PauseOnperformed;
+        
+        _customInputActions.Dispose();
+    }
+
+    private void PauseOnperformed(InputAction.CallbackContext obj) {
+        OnPauseAction?.Invoke(this, EventArgs.Empty);
     }
 
     private void InteractAlternateOnperformed(InputAction.CallbackContext obj) {
