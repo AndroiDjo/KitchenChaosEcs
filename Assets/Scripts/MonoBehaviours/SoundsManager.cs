@@ -10,8 +10,12 @@ public class SoundsManager : MonoBehaviour {
 
     public static SoundsManager Instance { get; private set; }
 
+    private float _volume;
+    private const string PREFS_SOUND_VOLUME = "PrefsSoundVolume";
+
     private void Awake() {
         Instance = this;
+        _volume = PlayerPrefs.GetFloat(PREFS_SOUND_VOLUME, 1f);
     }
 
     public void PlayCuttingSound(Vector3 position) {
@@ -49,7 +53,23 @@ public class SoundsManager : MonoBehaviour {
     }
     
     private void PlaySound(AudioClip clip, Vector3 position, float volume=1f) {
-        AudioSource.PlayClipAtPoint(clip, position, volume);
+        AudioSource.PlayClipAtPoint(clip, position, volume * _volume);
+    }
+
+    public void SetVolume(float volume) {
+        if (volume > 1f) {
+            volume = 1f;
+        } else if (volume < 0f) {
+            volume = 0f;
+        }
+
+        _volume = volume;
+        PlayerPrefs.SetFloat(PREFS_SOUND_VOLUME, _volume);
+        PlayerPrefs.Save();
+    }
+
+    public float GetVolume() {
+        return _volume;
     }
     
 }

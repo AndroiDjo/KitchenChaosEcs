@@ -14,16 +14,15 @@ public class PauseMenuUI : MonoBehaviour {
         Instance = this;
         pauseGameSystem = World.DefaultGameObjectInjectionWorld.GetOrCreateSystemManaged<PauseGameSystem>();
         
-        resumeButton.onClick.AddListener(OnClickResume);
-        mainMenuButton.onClick.AddListener(OnClickMainMenu);
-    }
-
-    private void OnClickMainMenu() {
-        Loader.Load(Loader.Scene.MainMenuScene);
-    }
-
-    private void OnClickResume() {
-        pauseGameSystem.TogglePause();
+        resumeButton.onClick.AddListener((() => {
+            pauseGameSystem.TogglePause();
+        }));
+        mainMenuButton.onClick.AddListener(() => {
+            Loader.Load(Loader.Scene.MainMenuScene);
+        });
+        optionsButton.onClick.AddListener(() => {
+            OptionsMenuUI.Instance.Show();
+        });
     }
 
     private void Start() {

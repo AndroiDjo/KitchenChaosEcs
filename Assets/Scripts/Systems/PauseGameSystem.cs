@@ -18,6 +18,7 @@ partial class PauseGameSystem : SystemBase {
         if (isGamePaused) {
             UnityEngine.Time.timeScale = 1f;
             isGamePaused = false;
+            OptionsMenuUI.Instance.Hide();
             PauseMenuUI.Instance.Hide();
         }
         else {

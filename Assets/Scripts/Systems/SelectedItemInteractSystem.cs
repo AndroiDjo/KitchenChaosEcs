@@ -50,7 +50,7 @@ partial class SelectedItemInteractSystem : SystemBase {
         return true;
     }
     protected override void OnCreate() {
-        var playerInputActionsSystem = this.World.GetExistingSystemManaged<CustomInputSystem>();
+        var playerInputActionsSystem = this.World.GetOrCreateSystemManaged<CustomInputSystem>();
         playerInputActionsSystem.OnInteractAction += InstanceOnOnInteractAction;
         playerInputActionsSystem.OnInteractAlternateAction += InstanceOnOnInteractAlternateAction;
     }
