@@ -7,8 +7,10 @@ partial class SpawnPlatesOverTimeSystem : SystemBase {
         var ecbSystem = this.World.GetExistingSystemManaged<EndSimulationEntityCommandBufferSystem>();
         var ecb = ecbSystem.CreateCommandBuffer();
         
-        Entities.ForEach((Entity entity, 
-            ref SpawnItemsOverTimeComponent spawnOverTime, 
+        Entities
+            .WithNone<IsSpawnPlatesRestricted>()
+            .ForEach((Entity entity, 
+            ref SpawnPlatesOverTimeComponent spawnOverTime, 
             in DynamicBuffer<ItemsBufferComponent> itemsBuffer,
             in SpawnPrefabComponent spawnPrefab,
             in ItemPlaceholderComponent itemPlaceholder

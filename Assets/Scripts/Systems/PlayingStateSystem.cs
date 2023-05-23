@@ -40,6 +40,23 @@ partial class PlayingStateSystem : SystemBase {
                     ecb.SetComponentEnabled<IsGenerateOrdersRestrictedComponent>(entity, false);
                 }
             }).Schedule();
+        
+        Entities
+            .WithAll<SpawnPlatesOverTimeComponent>()
+            .WithNone<IsSpawnPlatesRestricted>()
+            .ForEach((Entity entity) => {
+                if (!gameStateNative[0].IsGameActive()) {
+                    ecb.SetComponentEnabled<IsSpawnPlatesRestricted>(entity, true);
+                }
+            }).Schedule();
+        
+        Entities
+            .WithAll<SpawnPlatesOverTimeComponent, IsSpawnPlatesRestricted>()
+            .ForEach((Entity entity) => {
+                if (gameStateNative[0].IsGameActive()) {
+                    ecb.SetComponentEnabled<IsSpawnPlatesRestricted>(entity, false);
+                }
+            }).Schedule();
          
          Entities
              .WithAll<CanBeSelectedComponent>()

@@ -8,10 +8,12 @@ partial class StoveCounterStateSystem : SystemBase {
         Entities
             .WithAll<CanFryIngredientComponent>()
             .ForEach((ref EnableOnActionComponent enableOnAction, in IngredientEntityComponent ingredient) => {
-                if (ingredient.Entity != Entity.Null && !enableOnAction.Enabled) {
+                if (ingredient.Entity != Entity.Null && ingredient.IngredientType.IngredientType != IngredientType.MeatBurned 
+                                                     && !enableOnAction.Enabled) {
                     enableOnAction.Enabled = true;
                     ecb.SetEnabled(enableOnAction.Entity, true);
-                } else if (ingredient.Entity == Entity.Null && enableOnAction.Enabled) {
+                } else if ((ingredient.Entity == Entity.Null || ingredient.IngredientType.IngredientType == IngredientType.MeatBurned) 
+                           && enableOnAction.Enabled) {
                     enableOnAction.Enabled = false;
                     ecb.SetEnabled(enableOnAction.Entity, false);
                 }
