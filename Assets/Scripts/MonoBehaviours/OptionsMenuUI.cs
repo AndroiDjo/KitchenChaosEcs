@@ -31,6 +31,7 @@ public class OptionsMenuUI : MonoBehaviour {
     [SerializeField] private GameObject rebindKeyUI;
 
     private CustomInputSystem customInputSystem;
+    private Action _callbackOnClose;
     public static OptionsMenuUI Instance { get; private set; }
     
     private void Awake() {
@@ -95,12 +96,17 @@ public class OptionsMenuUI : MonoBehaviour {
         UpdateSoundEffectsVisible();
     }
 
-    public void Show() {
+    public void Show(Action callbackOnClose) {
+        _callbackOnClose = callbackOnClose;
         gameObject.SetActive(true);
+        backButton.Select();
     }
 
     public void Hide() {
         gameObject.SetActive(false);
+        if (_callbackOnClose != null) {
+            _callbackOnClose();
+        }
     }
 
     private void UpdateBindingVisible() {
