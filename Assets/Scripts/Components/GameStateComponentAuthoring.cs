@@ -5,7 +5,7 @@ public class GameStateComponentAuthoring : MonoBehaviour {
 
     class Baker : Baker<GameStateComponentAuthoring> {
         public override void Bake(GameStateComponentAuthoring authoring) {
-            Entity entity = GetEntity(TransformUsageFlags.None);
+            Entity entity = GetEntity(TransformUsageFlags.Dynamic);
             AddComponent(entity, new GameStateComponent {
                 GameState = GameState.WaitingToStart
             });

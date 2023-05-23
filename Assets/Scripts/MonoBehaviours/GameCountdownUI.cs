@@ -5,12 +5,16 @@ using UnityEngine;
 public class GameCountdownUI : MonoBehaviour {
 
     [SerializeField] private TextMeshProUGUI countdownText;
+    private Animator animator;
+
+    private const string ANIMATION_NUMBER_POPUP = "NumberPopup";
     public static GameCountdownUI Instance { get; private set; }
 
     private bool isActive;
 
     public void Awake() {
         Instance = this;
+        animator = GetComponent<Animator>();
         gameObject.SetActive(false);
     }
 
@@ -20,6 +24,7 @@ public class GameCountdownUI : MonoBehaviour {
             gameObject.SetActive(true);
             isActive = true;
         }
+        animator.SetTrigger(ANIMATION_NUMBER_POPUP);
     }
 
     public void Stop() {

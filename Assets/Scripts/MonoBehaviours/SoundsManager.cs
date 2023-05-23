@@ -46,6 +46,10 @@ public class SoundsManager : MonoBehaviour {
         PlayRandomSound(audioRefs.footsteps, position);
     }
 
+    public void PlayWarningSound(Vector3 position) {
+        PlayRandomSound(audioRefs.warning, position);
+    }
+
     private void PlayRandomSound(AudioClip[] clips, Vector3 position, float volume = 1f) {
         PlaySound(clips[Random.Range(0, clips.Length)], position, volume);
 

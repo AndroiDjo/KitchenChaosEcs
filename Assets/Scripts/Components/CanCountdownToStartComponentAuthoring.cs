@@ -14,4 +14,6 @@ public class CanCountdownToStartComponentAuthoring : MonoBehaviour {
 public struct CountdownToStartComponent : IComponentData {
     public float Goal;
     public float Timer;
+    public bool ShowNextDigit;
+    public int NextDigit;
 }
