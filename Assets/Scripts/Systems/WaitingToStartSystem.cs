@@ -1,22 +1,30 @@
+using System;
 using Unity.Entities;
 
 partial class WaitingToStartSystem : SystemBase {
-    protected override void OnUpdate() {
-        float dt = SystemAPI.Time.DeltaTime;
-        
-        Entities
-            .ForEach((Entity entity, ref GameStateComponent gameState, ref WaitingToStartComponent waitingToStart) => {
-                if (gameState.GameState != GameState.WaitingToStart) {
-                    return;
-                }
-                
-                waitingToStart.Timer += dt;
-                if (waitingToStart.Timer < waitingToStart.Goal) {
-                    return;
-                }
 
-                waitingToStart.Timer = 0f;
-                gameState.GameState = GameState.CountdownToStart;
-            }).Schedule();
+    private CustomInputSystem _customInputSystem;
+
+    protected override void OnCreate() {
+        _customInputSystem = this.World.GetOrCreateSystemManaged<CustomInputSystem>();
+        _customInputSystem.OnInteractAction += CustomInputSystemOnOnInteractAction;
+    }
+
+    private void CustomInputSystemOnOnInteractAction(object sender, EventArgs e) {
+        foreach (var (gameState, entity) in SystemAPI
+                     .Query<RefRW<GameStateComponent>>()
+                     .WithEntityAccess()
+                     .WithAll<WaitingToStartComponent>()
+                 ) {
+            if (gameState.ValueRO.GameState != GameState.WaitingToStart) {
+                return;
+            }
+
+            gameState.ValueRW.GameState = GameState.CountdownToStart;
+            TutorialUI.Instance.Hide();
+        }
+    }
+
+    protected override void OnUpdate() {
     }
 }
