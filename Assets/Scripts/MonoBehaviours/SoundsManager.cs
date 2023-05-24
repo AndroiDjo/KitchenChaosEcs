@@ -47,13 +47,11 @@ public class SoundsManager : MonoBehaviour {
     }
 
     public void PlayWarningSound(Vector3 position) {
-        PlayRandomSound(audioRefs.warning, position);
+        PlaySound(audioRefs.warning[1], position);
     }
 
     private void PlayRandomSound(AudioClip[] clips, Vector3 position, float volume = 1f) {
         PlaySound(clips[Random.Range(0, clips.Length)], position, volume);
-
-        World.DefaultGameObjectInjectionWorld.GetOrCreateSystem<SelectedItemInteractSystem>();
     }
     
     private void PlaySound(AudioClip clip, Vector3 position, float volume=1f) {

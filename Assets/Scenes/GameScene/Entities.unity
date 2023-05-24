@@ -483,7 +483,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -493,7 +493,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -508,7 +508,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -1448,7 +1448,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalRotation.w
-      value: 1
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -1458,7 +1458,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalRotation.y
-      value: 0
+      value: 0.7071068
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -1473,7 +1473,7 @@ PrefabInstance:
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
-      value: 0
+      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 8040805703468315302, guid: 0bf20489c6b6146c28ed5eb7d0bec67c,
         type: 3}
@@ -2508,7 +2508,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7ba03b1cdd294c3f9a213ee2ede46090, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Goal: 0.1
 --- !u!114 &1932775330
 MonoBehaviour:
   m_ObjectHideFlags: 0

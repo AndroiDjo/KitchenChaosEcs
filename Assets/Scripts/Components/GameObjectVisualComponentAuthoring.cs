@@ -44,3 +44,7 @@ public class GameObjectIngredientIconsUIComponent : IComponentData {
 public class GameObjectAudioSourceComponent : IComponentData {
     public AudioSourceHolder AudioSourceHolder;
 }
+
+public class GameObjectWarningSignUIComponent : IComponentData {
+    public WarningSignUI WarningSignUI;
+}

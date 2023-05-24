@@ -1,6 +1,7 @@
 using Helpers;
 using Unity.Entities;
 using Unity.Transforms;
+using UnityEngine;
 
 partial class FryingSystem : SystemBase {
     protected override void OnUpdate() {
@@ -30,5 +31,33 @@ partial class FryingSystem : SystemBase {
             }).Schedule();
         
         ecbSystem.AddJobHandleForProducer(this.Dependency);
+    }
+}
+
+partial class FryingWarningSystem : SystemBase {
+    protected override void OnUpdate() {
+        float dt = SystemAPI.Time.DeltaTime;
+        
+        foreach (var (stepOverTime, progressBarValue, warningOnLimit, holdedBy, warningSignUI, localTransform) in SystemAPI
+                     .Query<RefRW<StepOverTimeComponent>, ProgressBarValueComponent, WarningOnLimitComponent, 
+                         HoldedByComponent,  GameObjectWarningSignUIComponent, LocalTransform>()
+                     .WithAll<CanPlayWarningSoundComponent>()
+                 ) {
+            bool isWarning = holdedBy.HolderType == HolderType.StoveCounter &&
+                             progressBarValue.Value >= warningOnLimit.WarningOnLimit;
+            warningSignUI.WarningSignUI.SetWarning(isWarning);
+
+            if (!isWarning) {
+                return;
+            }
+
+            stepOverTime.ValueRW.Timer += dt;
+            if (stepOverTime.ValueRO.Timer < stepOverTime.ValueRO.Goal) {
+                return;
+            }
+
+            stepOverTime.ValueRW.Timer = 0f;
+            SoundsManager.Instance.PlayWarningSound(localTransform.Position);
+        }
     }
 }
