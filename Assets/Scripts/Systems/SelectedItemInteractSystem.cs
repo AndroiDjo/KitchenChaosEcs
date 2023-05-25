@@ -184,7 +184,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                     if (ingredientsAreEqual) {
                         ecb.DestroyEntity(recipesQueue[recipeQueueIndex].EntityUI);
                         ecb.DestroyEntity(playerIngredientNative[0].Entity);
-                        ecb.SetComponentEnabled<IsDeliverSuccessSoundComponent>(entity, true);
+                        ecb.SetComponentEnabled<IsDeliverySuccessful>(entity, true);
                         recipesQueue.RemoveAt(recipeQueueIndex);
                         canDeliverMeals.SuccessOrders++;
 
@@ -193,7 +193,7 @@ partial class SelectedItemInteractSystem : SystemBase {
                 }
                 
                 ecb.DestroyEntity(playerIngredientNative[0].Entity);
-                ecb.SetComponentEnabled<IsDeliverFailSoundComponent>(entity, true);
+                ecb.SetComponentEnabled<IsDeliveryFailed>(entity, true);
             })
             .Schedule();
         

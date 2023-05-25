@@ -23,6 +23,10 @@ partial struct GameObjectVisualSystem : ISystem {
                 ecb.AddComponent(entity, new GameObjectWarningSignUIComponent{ WarningSignUI = warningSignUI });
             }
             
+            if (go.TryGetComponent(out DeliveryPopupUI deliveryPopupUI)) {
+                ecb.AddComponent(entity, new GameObjectDeliveryPopupUIComponent{ DeliveryPopupUI = deliveryPopupUI });
+            }
+            
             if (go.TryGetComponent(out ProgressBarImageHolder progressBarImageHolder)) {
                 var progressBarImage = progressBarImageHolder.GetImageHolder();
                 

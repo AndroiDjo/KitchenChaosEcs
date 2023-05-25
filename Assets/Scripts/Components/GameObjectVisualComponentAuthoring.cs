@@ -48,3 +48,7 @@ public class GameObjectAudioSourceComponent : IComponentData {
 public class GameObjectWarningSignUIComponent : IComponentData {
     public WarningSignUI WarningSignUI;
 }
+
+public class GameObjectDeliveryPopupUIComponent : IComponentData {
+    public DeliveryPopupUI DeliveryPopupUI;
+}
